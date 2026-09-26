@@ -579,7 +579,7 @@ Contains reusable helper functionality such as:
     Content-Type: application/json
 
     {
-      "parentName": "Chethan Malli",
+      "parentName": "Your Name",
       "parentEmail": "parent@example.com",
       "parentTimezone": "Asia/Kolkata",
       "studentName": "Student Name",

@@ -1340,7 +1340,7 @@ function App() {
                         onChange={(event) =>
                           setParentName(event.target.value)
                         }
-                        placeholder="e.g. Chethan Malli"
+                        placeholder="e.g. Your Name"
                         className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm outline-none transition placeholder:text-slate-400 focus:border-slate-950 focus:bg-white focus:ring-4 focus:ring-slate-100"
                       />
                     </div>
