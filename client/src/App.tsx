@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 const API_URL =
   import.meta.env.VITE_API_URL || "http://localhost:5000";
 type TimezoneOption = {
@@ -29,6 +29,8 @@ type Mentor = {
 };
 
 type DemoBooking = {
+  learningField?: string;
+  preferredMentor?: string;
   bookingId?: string;
   parentName: string;
   studentName: string;
@@ -191,6 +193,13 @@ const mentors: Mentor[] = [
   },
 ];
 
+const learningFields = [
+  { name: "AI & Coding", description: "Artificial intelligence, coding and problem solving" },
+  { name: "Python", description: "Python programming and beginner projects" },
+  { name: "Web Development", description: "HTML, CSS, JavaScript and web apps" },
+  { name: "Robotics", description: "Robotics, logic and hands-on technology" },
+];
+
 const mentorFilters = [
   "All Mentors",
   "AI & Coding",
@@ -333,26 +342,237 @@ function Icon({
 
 function DemoClassPage() {
   const [booking, setBooking] = useState<DemoBooking | null>(null);
-  const [started, setStarted] = useState(false);
+  const [stage, setStage] = useState<"welcome" | "class" | "feedback" | "done">("welcome");
+  const [micOn, setMicOn] = useState(true);
+  const [cameraOn, setCameraOn] = useState(true);
+  const [speakerOn, setSpeakerOn] = useState(true);
+  const [seconds, setSeconds] = useState(0);
+  const [code, setCode] = useState("const name = 'Gurukula';\nconsole.log(name);");
+  const [challengeResult, setChallengeResult] = useState("");
+  const [rating, setRating] = useState(0);
+  const [feedback, setFeedback] = useState("");
+  const [continueLearning, setContinueLearning] = useState("AI & Coding");
+
+  // Real camera + microphone connection for the student's device.
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
+  const [mediaError, setMediaError] = useState("");
+  const [mediaConnected, setMediaConnected] = useState(false);
 
   useEffect(() => {
     try {
       const saved = window.localStorage.getItem("Gurukula-demo-booking");
-      if (saved) {
-        setBooking(JSON.parse(saved) as DemoBooking);
-      }
+      if (saved) setBooking(JSON.parse(saved) as DemoBooking);
     } catch {
       setBooking(null);
     }
   }, []);
 
+  useEffect(() => {
+    if (stage !== "class") return;
+
+    let cancelled = false;
+
+    const connectStudentDevices = async () => {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        setMediaError("Camera and microphone are not supported by this browser.");
+        return;
+      }
+
+      try {
+        setMediaError("");
+
+        // Request the student's actual camera and microphone.
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: true,
+        });
+
+        if (cancelled) {
+          stream.getTracks().forEach((track) => track.stop());
+          return;
+        }
+
+        mediaStreamRef.current = stream;
+
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          videoRef.current.muted = true;
+          await videoRef.current.play().catch(() => undefined);
+        }
+
+        const videoTrack = stream.getVideoTracks()[0];
+        const audioTrack = stream.getAudioTracks()[0];
+
+        setCameraOn(Boolean(videoTrack?.enabled));
+        setMicOn(Boolean(audioTrack?.enabled));
+        setMediaConnected(Boolean(videoTrack && audioTrack));
+      } catch (error) {
+        setMediaConnected(false);
+
+        if (error instanceof DOMException && error.name === "NotAllowedError") {
+          setMediaError(
+            "Camera and microphone permission was denied. Allow access in your browser settings and click Reconnect."
+          );
+        } else if (error instanceof DOMException && error.name === "NotFoundError") {
+          setMediaError("No camera or microphone was found on this device.");
+        } else {
+          setMediaError("Unable to connect your camera and microphone. Please try again.");
+        }
+      }
+    };
+
+    void connectStudentDevices();
+
+    return () => {
+      cancelled = true;
+
+      if (mediaStreamRef.current) {
+        mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+        mediaStreamRef.current = null;
+      }
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
+
+      setMediaConnected(false);
+    };
+  }, [stage]);
+
+  // Re-attach the active stream after the classroom video element is mounted.
+  // This prevents a blank preview when getUserMedia resolves around the same
+  // time React renders the classroom.
+  useEffect(() => {
+    if (stage !== "class" || !mediaStreamRef.current || !videoRef.current) {
+      return;
+    }
+
+    const video = videoRef.current;
+    video.srcObject = mediaStreamRef.current;
+    video.muted = true;
+
+    void video.play().catch(() => undefined);
+  }, [stage, mediaConnected]);
+
+  useEffect(() => {
+    if (stage !== "class") return;
+
+    const interval = window.setInterval(() => setSeconds((value) => value + 1), 1000);
+    return () => window.clearInterval(interval);
+  }, [stage]);
+
+  const formatTimer = (value: number) => {
+    const minutes = Math.floor(value / 60).toString().padStart(2, "0");
+    const secs = (value % 60).toString().padStart(2, "0");
+    return `${minutes}:${secs}`;
+  };
+
+  const toggleMic = () => {
+    const track = mediaStreamRef.current?.getAudioTracks()[0];
+
+    if (!track) {
+      setMediaError("Microphone is not connected. Click Reconnect to try again.");
+      return;
+    }
+
+    track.enabled = !track.enabled;
+    setMicOn(track.enabled);
+  };
+
+  const toggleCamera = () => {
+    const track = mediaStreamRef.current?.getVideoTracks()[0];
+
+    if (!track) {
+      setMediaError("Camera is not connected. Click Reconnect to try again.");
+      return;
+    }
+
+    track.enabled = !track.enabled;
+    setCameraOn(track.enabled);
+  };
+
+  const reconnectDevices = async () => {
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+      mediaStreamRef.current = null;
+    }
+
+    setMediaError("");
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      });
+
+      mediaStreamRef.current = stream;
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.muted = true;
+        await videoRef.current.play().catch(() => undefined);
+      }
+
+      const videoTrack = stream.getVideoTracks()[0];
+      const audioTrack = stream.getAudioTracks()[0];
+
+      setCameraOn(Boolean(videoTrack?.enabled));
+      setMicOn(Boolean(audioTrack?.enabled));
+      setMediaConnected(Boolean(videoTrack && audioTrack));
+    } catch (error) {
+      setMediaConnected(false);
+
+      if (error instanceof DOMException && error.name === "NotAllowedError") {
+        setMediaError("Permission is still blocked. Allow camera and microphone access in the browser settings.");
+      } else {
+        setMediaError("Unable to reconnect your camera and microphone.");
+      }
+    }
+  };
+
+  const leaveClass = () => {
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+      mediaStreamRef.current = null;
+    }
+
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+
+    window.location.href = "/";
+  };
+
+  const runChallenge = () => {
+    const normalized = code.replace(/\s+/g, "");
+
+    if (normalized.includes("console.log") && normalized.includes("Gurukula")) {
+      setChallengeResult("Correct! Your code prints the Gurukula name.");
+    } else {
+      setChallengeResult("Try adding console.log('Gurukula') to print the answer.");
+    }
+  };
+
+  const submitFeedback = () => {
+    const record = {
+      bookingId: booking?.bookingId,
+      mentorName: booking?.mentorName,
+      rating,
+      feedback,
+      continueLearning,
+      submittedAt: new Date().toISOString(),
+    };
+
+    window.localStorage.setItem("Gurukula-feedback", JSON.stringify(record));
+    setStage("done");
+  };
+
   if (!booking) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950 px-5 text-white">
         <div className="w-full max-w-lg rounded-[28px] border border-white/10 bg-white/[0.06] p-8 text-center shadow-2xl">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-lg font-black text-slate-950">
-            E
-          </div>
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-lg font-black text-slate-950">G</div>
           <h1 className="mt-6 text-3xl font-black">Demo class unavailable</h1>
           <p className="mt-3 text-sm leading-6 text-slate-400">
             Please return to the Gurukula booking page and open the demo class from your booking confirmation.
@@ -361,10 +581,110 @@ function DemoClassPage() {
             href="/"
             className="mt-7 inline-flex items-center gap-2 rounded-2xl bg-white px-6 py-3.5 text-sm font-bold text-slate-950 transition hover:bg-slate-200"
           >
-            Back to Gurukula
-            <Icon name="arrow" size={16} />
+            Back to Gurukula <Icon name="arrow" size={16} />
           </a>
         </div>
+      </div>
+    );
+  }
+
+  if (stage === "done") {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 px-5 text-white">
+        <div className="w-full max-w-xl rounded-[32px] border border-white/10 bg-white/[0.06] p-8 text-center shadow-2xl sm:p-12">
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500 text-slate-950">
+            <Icon name="check" size={34} />
+          </div>
+          <p className="mt-7 text-xs font-bold uppercase tracking-[0.2em] text-emerald-300">Thank you</p>
+          <h1 className="mt-3 text-3xl font-black sm:text-4xl">Great first step, {booking.studentName}!</h1>
+          <p className="mx-auto mt-4 max-w-lg text-sm leading-7 text-slate-400">
+            Your feedback has been saved for this demo. Gurukula is ready to continue your learning journey.
+          </p>
+          <div className="mt-7 rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-left">
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Continue learning</p>
+            <p className="mt-2 font-bold text-white">{continueLearning}</p>
+          </div>
+          <a
+            href="/"
+            className="mt-7 inline-flex items-center gap-2 rounded-2xl bg-white px-7 py-4 text-sm font-black text-slate-950 transition hover:bg-slate-200"
+          >
+            Return to Gurukula <Icon name="arrow" size={17} />
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  if (stage === "feedback") {
+    return (
+      <div className="min-h-screen bg-[#f7f8fc] text-slate-900">
+        <header className="border-b border-slate-200 bg-white">
+          <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4 lg:px-8">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 text-sm font-black text-white">G</div>
+              <div>
+                <div className="text-lg font-bold">Gurukula</div>
+                <div className="text-[11px] text-slate-400">Trial feedback</div>
+              </div>
+            </div>
+            <div className="rounded-full bg-emerald-50 px-4 py-2 text-xs font-bold text-emerald-700">Class completed</div>
+          </div>
+        </header>
+
+        <main className="mx-auto max-w-3xl px-5 py-10 lg:px-8">
+          <section className="rounded-[32px] border border-slate-300 bg-white p-7 shadow-sm sm:p-10">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-500">Final step</p>
+            <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">How was your trial class?</h1>
+            <p className="mt-3 text-sm leading-6 text-slate-500">Your feedback helps us create a better learning experience.</p>
+
+            <div className="mt-8">
+              <p className="text-sm font-bold">Rate your experience</p>
+              <div className="mt-3 flex gap-2">
+                {[1, 2, 3, 4, 5].map((value) => (
+                  <button
+                    key={value}
+                    onClick={() => setRating(value)}
+                    className={`flex h-12 w-12 items-center justify-center rounded-xl text-xl transition ${
+                      rating >= value ? "bg-amber-100 text-amber-500" : "bg-slate-100 text-slate-400 hover:bg-slate-200"
+                    }`}
+                  >
+                    ★
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-7">
+              <label className="text-sm font-bold">What did you enjoy?</label>
+              <textarea
+                value={feedback}
+                onChange={(event) => setFeedback(event.target.value)}
+                rows={5}
+                placeholder="Tell us about the mentor, class or activity..."
+                className="mt-2 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-4 text-sm outline-none transition focus:border-slate-950 focus:bg-white focus:ring-4 focus:ring-slate-100"
+              />
+            </div>
+
+            <div className="mt-7">
+              <label className="text-sm font-bold">What would you like to learn next?</label>
+              <select
+                value={continueLearning}
+                onChange={(event) => setContinueLearning(event.target.value)}
+                className="mt-2 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-4 text-sm font-medium outline-none focus:border-slate-950 focus:bg-white focus:ring-4 focus:ring-slate-100"
+              >
+                {learningFields.map((field) => <option key={field.name}>{field.name}</option>)}
+              </select>
+            </div>
+
+            <button
+              disabled={!rating}
+              onClick={submitFeedback}
+              className="mt-7 flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-6 py-4 text-sm font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Submit feedback <Icon name="arrow" size={17} />
+            </button>
+          </section>
+        </main>
       </div>
     );
   }
@@ -374,17 +694,17 @@ function DemoClassPage() {
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 text-sm font-black text-white">
-              G
-            </div>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 text-sm font-black text-white">G</div>
             <div>
               <div className="text-lg font-bold tracking-tight">Gurukula</div>
-              <div className="text-[11px] font-medium text-slate-400">Demo Classroom</div>
+              <div className="text-[11px] font-medium text-slate-400">Interactive Demo Classroom</div>
             </div>
           </div>
-
-          <div className="rounded-full bg-emerald-50 px-4 py-2 text-xs font-bold text-emerald-700">
-            Free Trial · 60 min
+          <div className="flex items-center gap-3">
+            <div className="hidden rounded-full bg-slate-100 px-4 py-2 text-xs font-bold text-slate-600 sm:block">
+              Session {formatTimer(seconds)}
+            </div>
+            <div className="rounded-full bg-emerald-50 px-4 py-2 text-xs font-bold text-emerald-700">Free Trial · 60 min</div>
           </div>
         </div>
       </header>
@@ -392,151 +712,313 @@ function DemoClassPage() {
       <main className="mx-auto max-w-7xl px-5 py-8 lg:px-8 lg:py-10">
         <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-500">
-              Gurukula Demo Classroom
-            </p>
-            <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
-              {started ? "Your trial class is ready" : "Welcome to your trial class"}
-            </h1>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-500">Gurukula Demo Classroom</p>
+            <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Welcome, {booking.studentName}!</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-              This is a demo classroom for the assessment. In a production version, this area can connect to a live video classroom.
+              Learn with {booking.mentorName} through a short interactive trial experience.
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-400 bg-white px-5 py-4 shadow-sm">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              Scheduled for
-            </p>
-            <p className="mt-1 text-sm font-bold">
-              {booking.date} · {booking.localTime}
-            </p>
+          <div className="rounded-2xl border border-slate-300 bg-white px-5 py-4 shadow-sm">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Scheduled for</p>
+            <p className="mt-1 text-sm font-bold">{booking.date} · {booking.localTime}</p>
             <p className="mt-1 text-xs text-slate-500">{booking.timezone}</p>
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1.4fr_0.6fr]">
-          <section className="overflow-hidden rounded-[28px] bg-slate-950 shadow-xl">
-            <div className="relative flex min-h-[480px] items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 p-6 sm:p-10">
-              <div className="absolute left-5 top-5 rounded-full border border-white/10 bg-white/[0.07] px-3 py-1.5 text-[11px] font-bold text-slate-300">
-                DEMO CLASSROOM
+        {stage === "welcome" ? (
+          <section className="mx-auto max-w-3xl rounded-[32px] border border-slate-300 bg-white p-8 text-center shadow-xl sm:p-12">
+            <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-slate-950 text-2xl font-black text-white">
+              {booking.mentorName.split(" ").map((part) => part[0]).slice(0, 2).join("")}
+            </div>
+            <p className="mt-7 text-xs font-bold uppercase tracking-[0.2em] text-indigo-500">Your mentor</p>
+            <h2 className="mt-2 text-3xl font-black">{booking.mentorName}</h2>
+            <p className="mt-2 text-sm text-slate-500">{booking.mentorTimezone}</p>
+
+            {booking.learningField && (
+              <div className="mx-auto mt-6 inline-flex rounded-full bg-indigo-50 px-4 py-2 text-xs font-bold text-indigo-700">
+                Learning: {booking.learningField}
+              </div>
+            )}
+
+            <p className="mx-auto mt-7 max-w-xl text-sm leading-7 text-slate-500">
+              Your camera and microphone will be connected when you enter the classroom. Your browser will ask for permission.
+            </p>
+
+            <button
+              onClick={() => setStage("class")}
+              className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-7 py-4 text-sm font-black text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-slate-800"
+            >
+              Enter interactive classroom <Icon name="arrow" size={17} />
+            </button>
+          </section>
+        ) : (
+          <div className="grid gap-6 lg:grid-cols-[1.35fr_0.65fr]">
+            <section className="overflow-hidden rounded-[28px] bg-slate-950 shadow-xl">
+              <div className="relative min-h-[500px] bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 p-5 sm:p-7">
+                <div className="absolute left-5 top-5 z-10 rounded-full border border-white/10 bg-white/[0.07] px-3 py-1.5 text-[11px] font-bold text-slate-300">
+                  LIVE DEMO
+                </div>
+
+                <div className="absolute right-5 top-5 z-10 rounded-full bg-emerald-500/10 px-3 py-1.5 text-[11px] font-bold text-emerald-300">
+                  ● {formatTimer(seconds)}
+                </div>
+
+                <div className="grid h-full min-h-[430px] gap-4 pt-12 md:grid-cols-2">
+                  {/* Mentor screen */}
+                  <div className="relative flex min-h-[260px] items-center justify-center overflow-hidden rounded-3xl border border-white/10 bg-slate-900/80">
+                    <div className="absolute left-4 top-4 rounded-full bg-black/40 px-3 py-1.5 text-[10px] font-bold text-white">
+                      MENTOR
+                    </div>
+
+                    <div className="text-center">
+                      <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-white text-xl font-black text-slate-950 shadow-2xl">
+                        {booking.mentorName.split(" ").map((part) => part[0]).slice(0, 2).join("")}
+                      </div>
+                      <p className="mt-4 text-xs font-bold uppercase tracking-[0.18em] text-indigo-300">Your mentor</p>
+                      <h2 className="mt-1 text-xl font-black text-white">{booking.mentorName}</h2>
+                      <p className="mt-1 text-xs text-slate-400">{booking.learningField || "Technology"}</p>
+                    </div>
+
+                    <div className="absolute bottom-4 left-4 rounded-full bg-emerald-500/15 px-3 py-1.5 text-[10px] font-bold text-emerald-300">
+                      ● Mentor connected
+                    </div>
+                  </div>
+
+                  {/* Student's real camera screen */}
+                  <div className="relative min-h-[260px] overflow-hidden rounded-3xl border border-indigo-400/30 bg-black shadow-inner">
+                    <div className="absolute left-4 top-4 z-10 rounded-full bg-black/60 px-3 py-1.5 text-[10px] font-bold text-white">
+                      YOU · STUDENT
+                    </div>
+
+                    {/* Keep the video element mounted at all times.
+                        This guarantees that the MediaStream can always be
+                        attached to the preview, including immediately after
+                        the browser permission prompt. */}
+                    <video
+                      ref={videoRef}
+                      autoPlay
+                      playsInline
+                      muted
+                      className={`h-full min-h-[260px] w-full object-cover ${
+                        cameraOn && mediaConnected ? "block" : "hidden"
+                      }`}
+                    />
+
+                    {(!cameraOn || !mediaConnected) && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-slate-900">
+                        <div className="text-center">
+                          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-white text-2xl font-black text-slate-950">
+                            {booking.studentName
+                              .split(" ")
+                              .map((part) => part[0])
+                              .slice(0, 2)
+                              .join("")}
+                          </div>
+                          <p className="mt-4 text-xs font-bold text-slate-300">
+                            {mediaConnected ? "Camera is off" : "Camera not connected"}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="absolute bottom-4 left-4 flex flex-wrap gap-2">
+                      <span className={`rounded-full px-3 py-1.5 text-[10px] font-bold ${
+                        mediaConnected && cameraOn
+                          ? "bg-emerald-500/20 text-emerald-300"
+                          : "bg-red-500/20 text-red-300"
+                      }`}>
+                        ● Camera {mediaConnected && cameraOn ? "connected" : "off"}
+                      </span>
+
+                      <span className={`rounded-full px-3 py-1.5 text-[10px] font-bold ${
+                        mediaConnected && micOn
+                          ? "bg-emerald-500/20 text-emerald-300"
+                          : "bg-red-500/20 text-red-300"
+                      }`}>
+                        ● Mic {mediaConnected && micOn ? "connected" : "off"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {mediaError && (
+                  <div className="mt-4 rounded-2xl border border-amber-400/30 bg-amber-400/10 p-4">
+                    <p className="text-xs font-semibold leading-5 text-amber-200">{mediaError}</p>
+                    <button
+                      type="button"
+                      onClick={reconnectDevices}
+                      className="mt-3 rounded-xl bg-white px-4 py-2 text-xs font-bold text-slate-950 transition hover:bg-slate-200"
+                    >
+                      Reconnect camera & microphone
+                    </button>
+                  </div>
+                )}
+
+                <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.05] p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-bold text-white">Student device</p>
+                      <p className="mt-1 text-[11px] text-slate-400">
+                        {mediaConnected
+                          ? "Your camera and microphone are connected to this classroom."
+                          : "Waiting for camera and microphone permission."}
+                      </p>
+                    </div>
+
+                    <div className={`rounded-full px-3 py-1.5 text-[10px] font-bold ${
+                      mediaConnected
+                        ? "bg-emerald-500/15 text-emerald-300"
+                        : "bg-amber-500/15 text-amber-300"
+                    }`}>
+                      {mediaConnected ? "● Devices connected" : "● Connecting..."}
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="w-full max-w-xl text-center">
-                <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-white text-2xl font-black text-slate-950 shadow-2xl">
-                  {booking.mentorName
-                    .split(" ")
-                    .map((part) => part[0])
-                    .slice(0, 2)
-                    .join("")}
-                </div>
+              <div className="flex flex-wrap items-center justify-center gap-3 border-t border-white/10 bg-slate-950 p-4">
+                <button
+                  onClick={toggleMic}
+                  disabled={!mediaConnected}
+                  className={`rounded-xl px-4 py-2.5 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-50 ${
+                    micOn ? "bg-white/10 text-white" : "bg-red-500/15 text-red-300"
+                  }`}
+                >
+                  🎤 Mic {micOn ? "On" : "Off"}
+                </button>
 
-                <p className="mt-7 text-xs font-bold uppercase tracking-[0.2em] text-indigo-300">
-                  Your mentor
-                </p>
-                <h2 className="mt-2 text-3xl font-black text-white">
-                  {booking.mentorName}
-                </h2>
-                <p className="mt-2 text-sm text-slate-400">
-                  {booking.mentorTimezone}
-                </p>
+                <button
+                  onClick={toggleCamera}
+                  disabled={!mediaConnected}
+                  className={`rounded-xl px-4 py-2.5 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-50 ${
+                    cameraOn ? "bg-white/10 text-white" : "bg-red-500/15 text-red-300"
+                  }`}
+                >
+                  🎥 Camera {cameraOn ? "On" : "Off"}
+                </button>
 
-                <div className="mx-auto mt-8 max-w-md rounded-2xl border border-white/10 bg-white/[0.06] p-5">
-                  <p className="text-sm font-semibold text-slate-200">
-                    {started
-                      ? `Hi ${booking.studentName}! Your demo classroom is ready.`
-                      : `Welcome ${booking.studentName}! Your mentor will guide you through an introductory coding session.`}
-                  </p>
-                  <p className="mt-2 text-xs leading-5 text-slate-400">
-                    {started
-                      ? "For this assessment demo, this screen represents the online classroom."
-                      : "Click the button below to enter the demo classroom."}
-                  </p>
-                </div>
+                <button
+                  onClick={() => setSpeakerOn((value) => !value)}
+                  className={`rounded-xl px-4 py-2.5 text-xs font-bold transition ${
+                    speakerOn ? "bg-white/10 text-white" : "bg-red-500/15 text-red-300"
+                  }`}
+                >
+                  🔊 Speaker {speakerOn ? "On" : "Off"}
+                </button>
 
-                {!started && (
-                  <button
-                    onClick={() => setStarted(true)}
-                    className="mt-7 inline-flex items-center gap-2 rounded-2xl bg-white px-7 py-4 text-sm font-black text-slate-950 shadow-lg transition hover:-translate-y-0.5 hover:bg-slate-200"
-                  >
-                    Enter demo classroom
-                    <Icon name="arrow" size={17} />
-                  </button>
+                <button
+                  onClick={reconnectDevices}
+                  className="rounded-xl bg-indigo-500/15 px-4 py-2.5 text-xs font-bold text-indigo-200 transition hover:bg-indigo-500/25"
+                >
+                  ↻ Reconnect
+                </button>
+
+                <button
+                  onClick={() => setStage("feedback")}
+                  className="rounded-xl bg-emerald-500 px-4 py-2.5 text-xs font-bold text-slate-950 transition hover:bg-emerald-400"
+                >
+                  Finish class
+                </button>
+
+                <button
+                  onClick={leaveClass}
+                  className="rounded-xl bg-red-500/15 px-4 py-2.5 text-xs font-bold text-red-300 transition hover:bg-red-500/25"
+                >
+                  Leave demo
+                </button>
+              </div>
+            </section>
+
+            <aside className="space-y-5">
+              <div className="rounded-[28px] border border-slate-300 bg-white p-6 shadow-sm">
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-500">Mini challenge</p>
+                <h2 className="mt-2 text-xl font-black">Print the Gurukula name</h2>
+                <p className="mt-2 text-xs leading-5 text-slate-500">Complete this tiny JavaScript task and run your code.</p>
+
+                <textarea
+                  value={code}
+                  onChange={(event) => setCode(event.target.value)}
+                  className="mt-5 h-32 w-full rounded-2xl bg-slate-950 p-4 font-mono text-xs leading-5 text-emerald-300 outline-none"
+                  spellCheck={false}
+                />
+
+                <button
+                  onClick={runChallenge}
+                  className="mt-3 w-full rounded-xl bg-slate-950 px-4 py-3 text-xs font-bold text-white hover:bg-slate-800"
+                >
+                  Run code
+                </button>
+
+                {challengeResult && (
+                  <div className={`mt-3 rounded-xl p-3 text-xs font-semibold ${
+                    challengeResult.startsWith("Correct")
+                      ? "bg-emerald-50 text-emerald-700"
+                      : "bg-amber-50 text-amber-800"
+                  }`}>
+                    {challengeResult}
+                  </div>
                 )}
               </div>
-            </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-3 border-t border-white/10 bg-slate-950 p-4">
-              {started && (
-                <>
-                  <button className="rounded-xl bg-white/10 px-4 py-2.5 text-xs font-bold text-white">
-                    🎤 Mic On
-                  </button>
-                  <button className="rounded-xl bg-white/10 px-4 py-2.5 text-xs font-bold text-white">
-                    🎥 Camera On
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      window.location.href = "/";
-                    }}
-                    className="rounded-xl bg-red-500/15 px-4 py-2.5 text-xs font-bold text-red-300 transition hover:bg-red-500/25"
-                  >
-                    Leave demo
-                  </button>
-                </>
-              )}
-            </div>
-          </section>
+              <div className="rounded-[28px] border border-slate-300 bg-white p-6">
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Class status</p>
 
-          <aside className="space-y-5">
-            <div className="rounded-[28px] border border-slate-400 bg-white p-6 shadow-sm">
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
-                Student
-              </p>
-              <h2 className="mt-2 text-2xl font-black">{booking.studentName}</h2>
-              <p className="mt-1 text-sm text-slate-500">Age {booking.studentAge}</p>
+                <div className="mt-5 space-y-3">
+                  <div className="flex items-center justify-between rounded-xl bg-slate-50 p-4">
+                    <span className="text-xs text-slate-500">Mentor</span>
+                    <span className="text-sm font-bold">{booking.mentorName}</span>
+                  </div>
 
-              <div className="mt-6 space-y-3">
-                <div className="flex items-center justify-between rounded-xl bg-slate-50 p-4">
-                  <span className="text-xs text-slate-500">Mentor</span>
-                  <span className="text-sm font-bold">{booking.mentorName}</span>
-                </div>
-                <div className="flex items-center justify-between rounded-xl bg-slate-50 p-4">
-                  <span className="text-xs text-slate-500">Duration</span>
-                  <span className="text-sm font-bold">60 minutes</span>
-                </div>
-                <div className="flex items-center justify-between rounded-xl bg-slate-50 p-4">
-                  <span className="text-xs text-slate-500">Status</span>
-                  <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">Confirmed</span>
+                  <div className="flex items-center justify-between rounded-xl bg-slate-50 p-4">
+                    <span className="text-xs text-slate-500">Duration</span>
+                    <span className="text-sm font-bold">60 minutes</span>
+                  </div>
+
+                  <div className="flex items-center justify-between rounded-xl bg-slate-50 p-4">
+                    <span className="text-xs text-slate-500">Camera</span>
+                    <span className={`rounded-full px-3 py-1 text-xs font-bold ${
+                      mediaConnected && cameraOn
+                        ? "bg-emerald-50 text-emerald-700"
+                        : "bg-red-50 text-red-700"
+                    }`}>
+                      {mediaConnected && cameraOn ? "Connected" : "Off"}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between rounded-xl bg-slate-50 p-4">
+                    <span className="text-xs text-slate-500">Microphone</span>
+                    <span className={`rounded-full px-3 py-1 text-xs font-bold ${
+                      mediaConnected && micOn
+                        ? "bg-emerald-50 text-emerald-700"
+                        : "bg-red-50 text-red-700"
+                    }`}>
+                      {mediaConnected && micOn ? "Connected" : "Off"}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between rounded-xl bg-slate-50 p-4">
+                    <span className="text-xs text-slate-500">Status</span>
+                    <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">In progress</span>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <div className="rounded-[28px] border border-indigo-100 bg-indigo-50 p-6">
-              <div className="flex gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-indigo-600 shadow-sm">
-                  <Icon name="spark" size={19} />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-indigo-950">What happens next?</p>
-                  <p className="mt-2 text-xs leading-5 text-indigo-800">
-                    In a production application, this classroom can be connected to Zoom, Google Meet, or a WebRTC video session.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </aside>
-        </div>
+            </aside>
+          </div>
+        )}
       </main>
     </div>
   );
 }
+
 
 function BookingPage() {
   const [parentName, setParentName] = useState("");
   const [parentEmail, setParentEmail] = useState("");
   const [studentName, setStudentName] = useState("");
   const [studentAge, setStudentAge] = useState("");
+  const [learningField, setLearningField] = useState("AI & Coding");
+  const [preferredMentor, setPreferredMentor] = useState("");
 
   const [timezone, setTimezone] = useState("Asia/Kolkata");
   const [date, setDate] = useState("");
@@ -575,6 +1057,15 @@ function BookingPage() {
       mentor.specialties.includes(mentorFilter)
     );
   }, [mentorFilter]);
+
+  const relevantMentors = useMemo(() => {
+    return mentors.filter((mentor) =>
+      mentor.specialties.some((specialty) =>
+        specialty.toLowerCase().includes(learningField.toLowerCase().replace(" & ", " ")) ||
+        learningField.toLowerCase().includes(specialty.toLowerCase())
+      )
+    );
+  }, [learningField]);
 
   useEffect(() => {
     const updateTime = () => {
@@ -663,6 +1154,16 @@ function BookingPage() {
   };
 
   const continueFromDetails = () => {
+    if (!learningField) {
+      setMessage("Please select a learning field.");
+      return;
+    }
+
+    if (!preferredMentor) {
+      setMessage("Please choose a preferred mentor.");
+      return;
+    }
+
     if (!parentName.trim()) {
       setMessage("Please enter the parent name.");
       return;
@@ -1059,6 +1560,17 @@ function BookingPage() {
 
                 </div>
 
+                <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                  <div className="rounded-2xl bg-indigo-50 p-5">
+                    <p className="text-xs font-bold uppercase tracking-wider text-indigo-500">Learning field</p>
+                    <p className="mt-2 font-bold text-indigo-950">{learningField}</p>
+                  </div>
+                  <div className="rounded-2xl bg-slate-50 p-5">
+                    <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Preferred mentor</p>
+                    <p className="mt-2 font-bold">{preferredMentor}</p>
+                  </div>
+                </div>
+
                 {assignedMentor && (
                   <div className="mt-6 rounded-2xl border border-indigo-100 bg-indigo-50/60 p-5">
                     <p className="text-xs font-bold uppercase tracking-wider text-indigo-500">
@@ -1145,6 +1657,26 @@ function BookingPage() {
                     availability for your trial class.
                   </p>
 
+
+                  {/* LEARNING FIELD + MENTOR */}
+                  <div className="mt-7 rounded-2xl border border-slate-300 bg-white p-5 shadow-sm">
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-500">Personalize your trial</p>
+                    <h3 className="mt-2 text-lg font-black">What would you like to learn?</h3>
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                      {learningFields.map((field) => (
+                        <button key={field.name} type="button" onClick={() => { setLearningField(field.name); setPreferredMentor(""); }} className={`rounded-2xl border p-4 text-left transition ${learningField === field.name ? "border-slate-950 bg-slate-950 text-white" : "border-slate-200 bg-slate-50 hover:border-slate-400"}`}>
+                          <p className="font-bold">{field.name}</p>
+                          <p className={`mt-1 text-xs leading-5 ${learningField === field.name ? "text-slate-300" : "text-slate-500"}`}>{field.description}</p>
+                        </button>
+                      ))}
+                    </div>
+                    <label className="mt-5 mb-2 block text-sm font-bold">Choose a preferred mentor</label>
+                    <select value={preferredMentor} onChange={(event) => setPreferredMentor(event.target.value)} className="w-full rounded-2xl border border-slate-400 bg-slate-50 px-4 py-4 text-sm font-medium outline-none focus:border-slate-950 focus:bg-white focus:ring-4 focus:ring-slate-100">
+                      <option value="">Select a mentor</option>
+                      {relevantMentors.map((mentor) => <option key={mentor.name} value={mentor.name}>{mentor.name} — {mentor.role}</option>)}
+                    </select>
+                    <p className="mt-2 text-xs text-slate-400">Your preference is used to personalize the experience; final availability is confirmed by the booking engine.</p>
+                  </div>
 
                   {/* TIMEZONE CARD */}
                   <div className="mt-7 rounded-2xl border border-indigo-100 bg-indigo-50/60 p-5">
@@ -1255,7 +1787,7 @@ function BookingPage() {
                     className="mt-7 flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-6 py-4 text-sm font-bold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {loading
-                      ? "Finding available mentors..."
+                      ? "Finding available slots..."
                       : "Find available times"}
 
                     {!loading && (
@@ -1299,7 +1831,7 @@ function BookingPage() {
 
                     {slots.length > 0 && (
                       <div className="h-fit rounded-full bg-emerald-50 px-4 py-2 text-xs font-bold text-emerald-700">
-                        {slots.length} sessions available
+                        {slots.length} slots available
                       </div>
                     )}
 
@@ -1352,7 +1884,7 @@ function BookingPage() {
                         <div className="mb-3 flex items-center justify-between">
 
                           <p className="text-sm font-bold">
-                            Available sessions
+                            Available slots
                           </p>
 
                           <p className="text-xs text-slate-400">
@@ -1401,24 +1933,14 @@ function BookingPage() {
 
                                 </div>
 
-                                <div className="mt-3 flex items-center gap-1.5">
-
-                                  <Icon
-                                    name="users"
-                                    size={13}
-                                  />
-
-                                  <span
-                                    className={`text-xs font-semibold ${
-                                      isSelected
-                                        ? "text-emerald-400"
-                                        : "text-emerald-600"
-                                    }`}
-                                  >
-                                    {slot.availableMentors} mentors
-                                    available
-                                  </span>
-
+                                <div
+                                  className={`mt-3 text-xs font-semibold ${
+                                    isSelected
+                                      ? "text-emerald-400"
+                                      : "text-emerald-600"
+                                  }`}
+                                >
+                                  Available
                                 </div>
 
                               </button>
@@ -1480,10 +2002,10 @@ function BookingPage() {
 
                             <div className="rounded-xl bg-slate-50 p-4">
                               <p className="text-xs text-slate-400">
-                                Mentors
+                                Selected course
                               </p>
                               <p className="mt-1 text-sm font-bold">
-                                {selectedSlot.availableMentors}
+                                {learningField}
                               </p>
                             </div>
 
@@ -1836,10 +2358,10 @@ function BookingPage() {
 
                         <div>
                           <p className="text-xs text-slate-400">
-                            Available mentors
+                            Selected course
                           </p>
                           <p className="mt-1 text-sm font-bold">
-                            {selectedSlot?.availableMentors || 0}
+                            {learningField}
                           </p>
                         </div>
 
