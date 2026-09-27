@@ -1,8 +1,10 @@
+# README.md
+
 # Elevora — Trial Class Booking Platform
 
 Elevora is a timezone-aware trial class booking platform built as a full-stack assessment project for CodeYoung.
 
-The application allows parents to select their timezone, choose a preferred date and available trial slot, enter parent and student details, receive a confirmed trial booking, and enter a demo classroom experience through the generated demo class link.
+The application allows parents to select their timezone, choose a preferred date and available trial slot, enter parent and student details, receive a confirmed trial booking, and enter a simulated demo classroom experience through the generated demo class link.
 
 ## Features
 
@@ -29,6 +31,8 @@ The application allows parents to select their timezone, choose a preferred date
 - REST API architecture
 - Local booking data persistence for the demo classroom
 - Responsive UI for booking and demo classroom screens
+- Footer with Elevora branding
+- View Portfolio button in the footer
 
 ## Tech Stack
 
@@ -38,6 +42,7 @@ The application allows parents to select their timezone, choose a preferred date
 - TypeScript
 - Vite
 - Tailwind CSS
+- Vercel
 
 ### Backend
 
@@ -48,6 +53,52 @@ The application allows parents to select their timezone, choose a preferred date
 - Mongoose
 - Zod
 - Luxon
+- Render
+
+### Database
+
+- MongoDB Atlas
+
+## Live Deployment
+
+The project is deployed and publicly accessible.
+
+### Frontend
+
+Vercel:
+
+https://elevora-trial-booking.vercel.app
+
+### Backend API
+
+Render:
+
+https://elevora-api.onrender.com
+
+### Database
+
+MongoDB Atlas is used for persistent booking and mentor data.
+
+### Deployed Architecture
+
+    User
+      |
+      v
+    Vercel
+    React Frontend
+      |
+      v
+    Render
+    Express REST API
+      |
+      v
+    MongoDB Atlas
+
+The deployed frontend communicates with the deployed backend using the `VITE_API_URL` environment variable.
+
+Production configuration:
+
+    VITE_API_URL=https://elevora-api.onrender.com
 
 ## Architecture
 
@@ -85,6 +136,8 @@ The React application handles:
 - Mentor category filtering
 - Demo class navigation
 - Returning to the booking home page
+- Footer navigation
+- Portfolio navigation
 
 The frontend is implemented as a single-page React application with conditional rendering for the main booking experience and the demo classroom experience.
 
@@ -101,7 +154,7 @@ When the user opens the demo class:
 5. The user can leave the demo at any time.
 6. Clicking **Leave Demo** returns the user to the Elevora home page.
 
-The demo classroom is intentionally simulated because the assessment allows a dummy class/meeting link.
+The demo classroom is intentionally simulated because the assessment allows a dummy class or meeting link.
 
 ### Demo Class Flow
 
@@ -126,6 +179,24 @@ The demo classroom is intentionally simulated because the assessment allows a du
     Elevora Home Page
 
 The demo booking information is stored in browser local storage so that it remains available when the classroom is opened in a new tab or refreshed.
+
+## Footer and Portfolio
+
+The Elevora footer contains the product branding and assessment information.
+
+It includes:
+
+- Elevora branding
+- Personalized learning tagline
+- Assessment project information
+- Developer information
+- View Portfolio button
+
+The **View Portfolio** button provides a direct way for visitors or evaluators to access the developer's portfolio.
+
+Portfolio:
+
+https://chethumalli-portfolio.vercel.app/
 
 ## Backend
 
@@ -328,29 +399,67 @@ Frontend:
 
     http://localhost:5173
 
+## Production Deployment
+
+The application is deployed using Vercel, Render, and MongoDB Atlas.
+
+### Frontend Deployment
+
+The React frontend is deployed on Vercel.
+
+    https://elevora-trial-booking.vercel.app
+
+### Backend Deployment
+
+The Node.js and Express backend is deployed on Render.
+
+    https://elevora-api.onrender.com
+
+### Database Deployment
+
+MongoDB Atlas is used as the cloud database.
+
+### Production Environment Variable
+
+The Vercel frontend uses:
+
+    VITE_API_URL=https://elevora-api.onrender.com
+
+This allows the deployed frontend to communicate with the deployed backend.
+
+### Production Architecture
+
+    Vercel
+    React + Vite
+         |
+         v
+    Render
+    Node.js + Express
+         |
+         v
+    MongoDB Atlas
+
 ## Production Build
 
 ### Backend
 
     cd server
+
     npm run build
 
 ### Frontend
 
     cd client
+
     npm run build
 
-Both builds have been tested successfully.
+Both frontend and backend production builds were tested successfully before deployment.
 
-For production deployment, the frontend API URL should point to the deployed backend instead of the local development server.
-
-Example:
-
-    VITE_API_URL=https://your-backend-url.com
+The frontend was then deployed to Vercel and the backend was deployed to Render.
 
 ## Validation and Testing
 
-The following functionality was tested during development:
+The following functionality was tested during development and deployment:
 
 - MongoDB connection
 - Mentor seeding
@@ -368,8 +477,12 @@ The following functionality was tested during development:
 - Demo class opening in a new browser tab
 - Demo classroom data persistence using local storage
 - Leave Demo navigation back to the home page
+- Footer View Portfolio button
 - Frontend production build
 - Backend TypeScript build
+- Vercel frontend deployment
+- Render backend deployment
+- Deployed frontend-to-backend API communication
 
 ## Design Decisions
 
@@ -430,6 +543,14 @@ This allows the complete customer journey to be demonstrated:
        v
     Home Page
 
+### New-Tab Demo Experience
+
+The demo classroom opens in a new browser tab to simulate the experience of joining an online class while keeping the original booking page available.
+
+### Footer Portfolio Access
+
+A **View Portfolio** button was added to the footer so evaluators and visitors can easily access the developer's portfolio without interrupting the main booking experience.
+
 ## Current Limitations
 
 - The demo classroom is simulated rather than a real video-conferencing environment.
@@ -438,9 +559,7 @@ This allows the complete customer journey to be demonstrated:
 - Authentication and user accounts are not implemented.
 - Cancellation and rescheduling UI are not included.
 - Concurrent booking protection could be strengthened with transactional or atomic reservation logic.
-- Production deployment configuration is not included.
 - Automated test coverage can be expanded.
-- The demo classroom currently uses browser local storage for its temporary classroom state.
 
 ## Future Improvements
 
@@ -453,7 +572,6 @@ This allows the complete customer journey to be demonstrated:
 - Admin dashboard
 - Mentor dashboard
 - Stronger concurrency control
-- Production deployment
 - Automated unit tests
 - Integration tests
 - End-to-end tests
@@ -751,7 +869,7 @@ The API calculates available trial slots according to the selected date and time
                                      |
                                      v
                           ┌─────────────────────┐
-                          │ MongoDB             │
+                          │ MongoDB Atlas       │
                           └──────────┬──────────┘
                                      |
                                      v
@@ -792,13 +910,10 @@ The flow is:
     Try Demo Class
           |
           v
-    Open ?demo=1
+    Open Demo
           |
           v
-    Read Demo Booking Data
-          |
-          v
-    Display Demo Classroom
+    Demo Classroom
           |
           v
     Start Demo Class
@@ -846,6 +961,7 @@ The intended customer journey is:
 11. The parent can try the demo class.
 12. The demo class opens in a separate browser tab.
 13. The parent can leave the demo and return to the Elevora home page.
+14. The parent can use the View Portfolio button in the footer to visit the developer portfolio.
 
 ## Project Branding
 
@@ -855,6 +971,10 @@ Personalized learning. Real progress.
 
 © 2026 Elevora · Assessment project for CodeYoung
 
+Developed by Chethan C. Malli
+
+The footer also includes a **View Portfolio** button.
+
 ## Author
 
 Developed by **Chethan C. Malli**
@@ -862,6 +982,8 @@ Developed by **Chethan C. Malli**
 AI/ML Enthusiast | Full-Stack Developer
 
 GitHub: https://github.com/Chethumalli
+
+Portfolio: https://chethumalli-portfolio.vercel.app/
 
 ## Assessment
 
@@ -881,11 +1003,16 @@ The project demonstrates:
 - Mentor assignment
 - Demo classroom experience
 - New-tab demo class navigation
+- Leave Demo navigation
 - Responsive UI development
+- Footer portfolio navigation
 - TypeScript
 - React
 - Node.js
 - Express.js
+- Vercel deployment
+- Render deployment
+- MongoDB Atlas integration
 
 ## License
 

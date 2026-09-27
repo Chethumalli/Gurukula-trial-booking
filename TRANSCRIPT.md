@@ -1,3 +1,5 @@
+# TRANSCRIPT.md
+
 # Elevora — Development Transcript
 
 ## Project
@@ -58,6 +60,12 @@ The project was implemented using:
 
 - Luxon for timezone handling
 - Zod for request validation
+
+### Deployment
+
+- Vercel for frontend deployment
+- Render for backend deployment
+- MongoDB Atlas for cloud database
 
 ---
 
@@ -137,11 +145,13 @@ Tagline:
 
 The branding was chosen to give the application a standalone product identity rather than presenting it as an internal CodeYoung application.
 
-The footer clearly identifies the project as:
+The footer identifies the project as:
 
     © 2026 Elevora · Assessment project for CodeYoung
 
     Developed by Chethan C. Malli
+
+A **View Portfolio** button was also added to the footer to provide quick access to the developer's portfolio.
 
 ---
 
@@ -599,8 +609,6 @@ The booking confirmation uses the successful booking response to display the con
 
 The demo class feature was added after the main booking workflow was completed.
 
-The initial implementation required additional handling to keep the booking page and demo classroom separate.
-
 The frontend was structured so that:
 
     Normal URL
@@ -733,7 +741,7 @@ When the user clicks the button:
 
 The button uses the application's root route so the user can return directly to the main booking experience.
 
-This also provides a clear exit path from the demo classroom.
+This provides a clear exit path from the demo classroom.
 
 ---
 
@@ -747,7 +755,33 @@ If no demo booking information is available, the application can show an appropr
 
 ---
 
-# 27. End-to-End Verification
+# 27. Footer and Portfolio Feature
+
+The footer was enhanced after the main application flow was completed.
+
+The footer contains:
+
+    Elevora Branding
+
+    Personalized Learning Tagline
+
+    Assessment Information
+
+    Developer Information
+
+    View Portfolio
+
+The **View Portfolio** button provides a direct navigation path to the developer's portfolio.
+
+Portfolio:
+
+    https://chethumalli-portfolio.vercel.app/
+
+This gives evaluators an easy way to explore the developer's other work without interrupting the booking experience.
+
+---
+
+# 28. End-to-End Verification
 
 A complete booking was successfully tested through the frontend.
 
@@ -805,13 +839,17 @@ The tested flow was:
 
           ↓
 
+    View Portfolio available in footer
+
+          ↓
+
     MongoDB booking verified
 
 The saved MongoDB booking contains the booking information required by the backend.
 
 ---
 
-# 28. Production Build Verification
+# 29. Production Build Verification
 
 The backend was tested using:
 
@@ -829,13 +867,17 @@ The demo class implementation was also checked as part of the frontend developme
 
 ---
 
-# 29. Environment Configuration
+# 30. Environment Configuration
 
 The frontend API URL was moved into an environment variable.
 
-Frontend:
+Local development:
 
     VITE_API_URL=http://localhost:5000
+
+Production:
+
+    VITE_API_URL=https://elevora-api.onrender.com
 
 The application uses:
 
@@ -843,13 +885,11 @@ The application uses:
 
 instead of hardcoding the backend URL throughout the application.
 
-This makes the frontend easier to configure for deployment.
-
-For production, the environment variable can point to the deployed backend URL.
+This makes the frontend easier to configure for both local development and production deployment.
 
 ---
 
-# 30. Git Configuration
+# 31. Git Configuration
 
 A root `.gitignore` was created to prevent unnecessary or sensitive files from being committed.
 
@@ -867,7 +907,93 @@ The actual MongoDB connection string is therefore not included in the repository
 
 ---
 
-# 31. AI-Assisted Development
+# 32. Production Deployment
+
+After completing the local development and testing process, the application was deployed to production.
+
+The deployment architecture is:
+
+    Vercel
+    React Frontend
+         |
+         v
+    Render
+    Node.js + Express API
+         |
+         v
+    MongoDB Atlas
+
+### Frontend Deployment
+
+The frontend was deployed using Vercel.
+
+Live frontend:
+
+    https://elevora-trial-booking.vercel.app
+
+### Backend Deployment
+
+The backend was deployed using Render.
+
+Live backend:
+
+    https://elevora-api.onrender.com
+
+### Database
+
+MongoDB Atlas continues to provide the cloud database layer.
+
+### Production API Configuration
+
+The Vercel frontend was configured to communicate with the Render backend using:
+
+    VITE_API_URL=https://elevora-api.onrender.com
+
+This allows the deployed frontend to make availability and booking requests to the deployed backend.
+
+---
+
+# 33. Deployment Verification
+
+The deployed application was verified after deployment.
+
+The verification included:
+
+- Opening the Vercel frontend.
+- Confirming the frontend loads correctly.
+- Connecting the frontend to the Render backend.
+- Testing the availability API.
+- Testing timezone-aware availability.
+- Testing the booking API.
+- Confirming MongoDB persistence.
+- Testing the booking confirmation screen.
+- Testing the Try Demo Class button.
+- Confirming the demo opens in a new browser tab.
+- Testing the Leave Demo button.
+- Confirming Leave Demo returns to the Elevora home page.
+- Confirming the View Portfolio button is available in the footer.
+
+The deployed architecture therefore supports the complete application flow from frontend interaction to backend processing and database persistence.
+
+---
+
+# 34. Live Application
+
+The final application is publicly deployed.
+
+Frontend:
+
+    https://elevora-trial-booking.vercel.app
+
+Backend:
+
+    https://elevora-api.onrender.com
+
+The deployed application demonstrates the complete Elevora trial booking experience.
+
+---
+
+# 35. AI-Assisted Development
 
 AI assistance was used throughout the development process as a coding and problem-solving assistant.
 
@@ -885,6 +1011,7 @@ The AI was used for:
 - UI/UX refinement
 - Demo classroom implementation
 - Navigation and user-flow refinement
+- Deployment guidance
 - README documentation
 - Git workflow guidance
 - Testing suggestions
@@ -893,7 +1020,7 @@ The implementation was reviewed and executed locally during development.
 
 ---
 
-# 32. AI Guidance Examples
+# 36. AI Guidance Examples
 
 Examples of development guidance included:
 
@@ -919,13 +1046,19 @@ Examples of development guidance included:
 
     Add a Leave Demo action that returns to the home page.
 
+    Add a View Portfolio button to the footer.
+
     Prepare project documentation.
 
-The AI was used primarily to accelerate implementation, debugging, explanation, and documentation.
+    Prepare the application for Vercel deployment.
+
+    Prepare the backend for Render deployment.
+
+The AI was used primarily to accelerate implementation, debugging, explanation, deployment preparation, and documentation.
 
 ---
 
-# 33. Important Design Decisions
+# 37. Important Design Decisions
 
 ## Why React + TypeScript?
 
@@ -959,11 +1092,25 @@ Opening the demo classroom in a new tab makes the transition feel closer to a re
 
 ## Why Use Local Storage for Demo Data?
 
-The demo classroom is a frontend simulation. Browser local storage provides a simple way to transfer the confirmed booking information into the new demo tab without requiring another backend API specifically for the demo classroom.
+The demo classroom is a frontend simulation.
+
+Browser local storage provides a simple way to transfer the confirmed booking information into the new demo tab without requiring another backend API specifically for the demo classroom.
+
+## Why Add a View Portfolio Button?
+
+The View Portfolio button provides evaluators and visitors with direct access to the developer's portfolio.
+
+It keeps the portfolio link visible without adding complexity to the primary booking workflow.
+
+## Why Deploy Using Vercel and Render?
+
+Vercel provides a suitable deployment platform for the React/Vite frontend, while Render provides a suitable environment for the Node.js and Express backend.
+
+Separating the frontend and backend deployments also keeps the application architecture consistent with the local development structure.
 
 ---
 
-# 34. Current Scope
+# 38. Current Scope
 
 The completed application includes:
 
@@ -1007,11 +1154,23 @@ The completed application includes:
 
     ✓ REST API
 
+    ✓ Footer branding
+
+    ✓ View Portfolio button
+
+    ✓ Vercel frontend deployment
+
+    ✓ Render backend deployment
+
+    ✓ MongoDB Atlas cloud database
+
+    ✓ Production API configuration
+
     ✓ Production builds
 
 ---
 
-# 35. Future Improvements
+# 39. Future Improvements
 
 Possible production improvements include:
 
@@ -1041,15 +1200,13 @@ Possible production improvements include:
 
     • Stronger concurrency protection
 
-    • Production deployment
-
     • Real-time classroom functionality
 
     • Real-time mentor/student video communication
 
 ---
 
-# 36. Final User Journey
+# 40. Final User Journey
 
 The final customer journey is:
 
@@ -1111,11 +1268,15 @@ The final customer journey is:
 
     Elevora Home Page
 
+             ↓
+
+    View Portfolio available in Footer
+
 This provides a complete end-to-end customer experience from discovering a trial class to booking and experiencing a simulated online class.
 
 ---
 
-# 37. Final Result
+# 41. Final Result
 
 The final Elevora application provides a complete trial-class booking workflow with:
 
@@ -1163,11 +1324,60 @@ The final Elevora application provides a complete trial-class booking workflow w
 
             +
 
+    Footer portfolio access
+
+            +
+
+    Vercel frontend deployment
+
+            +
+
+    Render backend deployment
+
+            +
+
+    MongoDB Atlas database
+
+            +
+
     Responsive user experience
 
-The system was tested locally from frontend interaction through backend processing and database persistence.
+The system was tested locally and then deployed to production.
 
-The final customer journey can be completed without leaving the Elevora application experience.
+The final customer journey can be completed through the deployed Elevora application from frontend interaction through backend processing, database persistence, booking confirmation, demo classroom access, and returning to the home page.
+
+---
+
+# 42. Live Deployment Summary
+
+The completed application is publicly deployed using the following architecture:
+
+    User
+      |
+      v
+    Vercel
+    Elevora React Frontend
+      |
+      v
+    Render
+    Elevora Express API
+      |
+      v
+    MongoDB Atlas
+
+Live Frontend:
+
+    https://elevora-trial-booking.vercel.app
+
+Live Backend:
+
+    https://elevora-api.onrender.com
+
+Portfolio:
+
+    https://chethumalli-portfolio.vercel.app/
+
+The deployment demonstrates that the application is not limited to local development and can be accessed through its public production frontend.
 
 ---
 
