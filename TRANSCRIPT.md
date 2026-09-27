@@ -1,5 +1,3 @@
-# TRANSCRIPT.md
-
 # Elevora — Development Transcript
 
 ## Project
