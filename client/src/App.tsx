@@ -2408,17 +2408,21 @@ function BookingPage() {
               © 2026 Elevora · Assessment project for CodeYoung
             </p>
 
-            <p className="mt-1 text-xs font-semibold text-slate-600">
-                Developed by{" "}
-              <a
-                href="https://chethumalli-portfolio.vercel.app/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-slate-900 transition hover:text-indigo-600 hover:underline"
-              >
-                Chethan C. Malli
-              </a>
-            </p>
+            <div className="mt-1 flex flex-col items-start gap-2 sm:items-end">
+                <p className="text-xs font-semibold text-slate-600">
+                  Developed by{" "}
+                  <span className="text-slate-900">Chethan C. Malli</span>
+                </p>
+
+                <a
+                  href="https://chethumalli-portfolio.vercel.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-indigo-700"
+                >
+                  View Portfolio →
+                </a>
+              </div>
 
           </div>
 
