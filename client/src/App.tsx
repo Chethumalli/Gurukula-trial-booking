@@ -589,7 +589,9 @@ function DemoClassPage() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950 px-5 text-white">
         <div className="w-full max-w-lg rounded-[28px] border border-white/10 bg-white/[0.06] p-8 text-center shadow-2xl">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-lg font-black text-slate-950">G</div>
+          <div className="mx-auto flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-slate-950 shadow-lg">
+            <img src="/gurukulalogo.jpg" alt="Gurukula logo" className="h-full w-full object-cover" />
+          </div>
           <h1 className="mt-6 text-3xl font-black">Demo class unavailable</h1>
           <p className="mt-3 text-sm leading-6 text-slate-400">
             Please return to the Gurukula booking page and open the demo class from your booking confirmation.
@@ -638,7 +640,9 @@ function DemoClassPage() {
         <header className="border-b border-slate-200 bg-white">
           <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4 lg:px-8">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 text-sm font-black text-white">G</div>
+              <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-slate-950 shadow-sm">
+                <img src="/gurukulalogo.jpg" alt="Gurukula logo" className="h-full w-full object-cover" />
+              </div>
               <div>
                 <div className="text-lg font-bold">Gurukula</div>
                 <div className="text-[11px] text-slate-400">Trial feedback</div>
@@ -741,7 +745,9 @@ function DemoClassPage() {
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 text-sm font-black text-white">G</div>
+            <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-slate-950 shadow-sm">
+                <img src="/gurukulalogo.jpg" alt="Gurukula logo" className="h-full w-full object-cover" />
+              </div>
             <div>
               <div className="text-lg font-bold tracking-tight">Gurukula</div>
               <div className="text-[11px] font-medium text-slate-400">Interactive Demo Classroom</div>
@@ -1373,8 +1379,8 @@ function BookingPage() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
 
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 text-sm font-black text-white shadow-sm">
-              G
+            <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-slate-950 shadow-sm">
+              <img src="/gurukulalogo.jpg" alt="Gurukula logo" className="h-full w-full object-cover" />
             </div>
 
             <div>
