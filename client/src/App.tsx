@@ -2409,7 +2409,15 @@ function BookingPage() {
             </p>
 
             <p className="mt-1 text-xs font-semibold text-slate-600">
-              Developed by Chethan C. Malli
+                Developed by{" "}
+              <a
+                href="https://chethumalli-portfolio.vercel.app/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-900 transition hover:text-indigo-600 hover:underline"
+              >
+                Chethan C. Malli
+              </a>
             </p>
 
           </div>
