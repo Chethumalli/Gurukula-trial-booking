@@ -73,8 +73,6 @@ Vercel:
 
 https://gurukula-trial-booking.vercel.app
 
-> Note: The deployment URL retains the original project deployment name while the application branding is Gurukula.
-
 ### Backend API
 
 Render:
