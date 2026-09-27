@@ -1,116 +1,122 @@
-# Gurukula — Trial Class Booking Platform
+# Gurukula — Complete AI Development Transcript
 
-## AI Development Session Transcript
+## Project Information
 
-**Project:** Gurukula — Trial Class Booking Platform  
-**Assessment:** CodeYoung Full-Stack Assessment  
-**Developer:** Chethan C. Malli  
-**Technology:** React, TypeScript, Vite, Tailwind CSS, Node.js, Express.js, MongoDB, Mongoose, Luxon  
-**Deployment:** Vercel + Render + MongoDB Atlas
+**Project Name:** Gurukula — Trial Class Booking Platform
 
-> **Note:** This transcript is a reconstructed record of the AI-assisted development sessions based on the available development conversation and project history. It preserves the development decisions, prompts, responses, debugging steps, implementation discussions, deployment work, and final branding changes. It should not be interpreted as a word-for-word export of historical messages that are no longer available.
+**Assessment:** CodeYoung Full-Stack Assessment
+
+**Developer:** Chethan C. Malli
+
+**Date:** September 2026
+
+**Purpose:** Full-stack trial class booking platform with timezone-aware scheduling, mentor assignment, booking validation, demo classroom experience, and production deployment.
 
 ---
 
-# 1. Project Requirement
+# 1. Project Objective
 
-## User
+## User Prompt
 
 I need to build a full-stack trial class booking platform for the CodeYoung assessment.
 
-The application should allow parents to select a timezone, choose a date, view available trial class slots, enter parent and student details, and book a trial class.
+The application should allow parents to:
 
-The application should also support mentors, timezone-aware availability, booking limits, and conflict prevention.
+- Select their timezone.
+- Select a preferred date.
+- View available trial class slots.
+- Enter parent details.
+- Enter student details.
+- Book a trial class.
+- Automatically assign an available mentor.
+- Handle mentors and parents in different timezones.
+- Support daylight saving time.
+- Limit mentors to a maximum of two demo classes per day.
+- Show an appropriate error when no mentor is available.
+- Provide a dummy class link after booking.
 
-## AI Agent
+## AI Response
 
-The project can be implemented as a full-stack application with:
+The project should be designed as a full-stack scheduling application with:
 
 - React frontend
 - Node.js and Express backend
 - MongoDB database
-- TypeScript
-- Timezone handling using Luxon
+- Luxon for timezone-aware scheduling
 - REST APIs
-- Mentor availability management
-- Booking validation
-- Demo classroom experience
+- Mentor availability logic
+- UTC-based booking storage
+- Automatic mentor assignment
+- Booking conflict prevention
+- Demo class experience
 
-The architecture can be divided into:
+The application should treat the parent's selected timezone as the display timezone while storing booking timestamps in UTC.
 
-    React Frontend
-          |
-          v
-       REST API
-          |
-          v
-    Express Controllers
-          |
-          v
-        Services
-          |
-          v
-    Mongoose Models
-          |
-          v
-       MongoDB
+Mentor availability should be calculated by converting the requested parent-local time into the mentor's local timezone and checking:
+
+1. Working day
+2. Working hours
+3. Daily booking capacity
+4. Existing booking conflicts
+5. Cross-midnight conditions
+6. Mentor active status
 
 ---
 
 # 2. Technology Selection
 
-## User
+## User Prompt
 
-What technology stack should be used for the project?
+Which technology stack should be used for the project?
 
-## AI Agent
+## AI Response
 
-A suitable stack is:
+A suitable stack for the assessment is:
 
-### Frontend
+Frontend:
 
 - React
 - TypeScript
 - Vite
 - Tailwind CSS
 
-### Backend
+Backend:
 
 - Node.js
 - Express.js
 - TypeScript
 
-### Database
+Database:
 
-- MongoDB
+- MongoDB Atlas
 - Mongoose
 
-### Supporting Libraries
+Supporting libraries:
 
-- Luxon for timezone handling
+- Luxon for timezone and DST handling
 - Zod for backend request validation
 
-### Deployment
+Deployment:
 
-- Vercel for frontend
-- Render for backend
-- MongoDB Atlas for database
+- Vercel for the frontend
+- Render for the backend
+- MongoDB Atlas for the database
 
-This stack provides a simple and maintainable full-stack architecture suitable for the assessment.
+This stack keeps the application simple, scalable, and appropriate for the assessment requirements.
 
 ---
 
 # 3. Project Structure
 
-## User
+## User Prompt
 
-Create a clean structure for the project.
+Create a clean project structure with separate frontend and backend applications.
 
-## AI Agent
+## AI Response
 
-The project can use the following structure:
+The recommended structure was:
 
-    elevora-trial-booking/
+    gurukula-trial-booking/
     │
     ├── client/
     │   ├── public/
@@ -119,7 +125,6 @@ The project can use the following structure:
     │   │   ├── App.css
     │   │   ├── index.css
     │   │   └── main.tsx
-    │   ├── .env.example
     │   ├── package.json
     │   └── vite.config.ts
     │
@@ -135,471 +140,883 @@ The project can use the following structure:
     │   ├── package.json
     │   └── tsconfig.json
     │
+    ├── run.bat
     ├── README.md
     └── TRANSCRIPT.md
 
-The frontend is responsible for the user experience while the backend contains business logic and database operations.
+The frontend and backend should remain independently deployable.
 
 ---
 
-# 4. Booking Experience
+# 4. Frontend Development
 
-## User
+## User Prompt
 
-The booking flow should allow a parent to select a timezone, date, and available trial slot.
+Create a clean and modern booking interface for parents.
 
-## AI Agent
+## AI Response
 
-The booking flow can be:
+The booking experience should use a simple four-step flow:
 
-    Select Timezone
-          |
-          v
-    Select Date
-          |
-          v
-    View Available Slots
-          |
-          v
-    Select Trial Slot
-          |
-          v
-    Enter Parent Details
-          |
-          v
-    Enter Student Details
-          |
-          v
-    Validate Information
-          |
-          v
-    Find Available Mentor
-          |
-          v
-    Create Booking
-          |
-          v
-    Show Confirmation
+    Step 1
+    Choose Timezone
+          ↓
+    Step 2
+    Choose Date & Time
+          ↓
+    Step 3
+    Enter Parent & Student Details
+          ↓
+    Step 4
+    Review and Confirm
 
-The booking interface should be responsive and simple for parents to use.
+The interface should be responsive and parent-friendly.
+
+The design should provide:
+
+- Clear headings
+- Simple navigation
+- Visible selected timezone
+- Available time slots
+- Form validation
+- Booking confirmation
+- Error messages
+- Mentor information
+- Demo class access after booking
+
+The frontend was implemented using React, TypeScript, Vite, and Tailwind CSS.
 
 ---
 
-# 5. Mentor System
+# 5. Product Branding
 
-## User
+## User Prompt
 
-The application needs mentors with different timezones.
+Change the project branding to Gurukula.
 
-## AI Agent
+## AI Response
 
-The Mentor model can contain:
+The application branding was updated to:
+
+    Gurukula
+
+Tagline:
+
+    Personalized learning. Real progress.
+
+The visible application branding should use Gurukula.
+
+The existing deployment URLs should remain unchanged because they are deployment addresses rather than visible product branding.
+
+The footer was updated to include:
+
+    © 2026 Gurukula · Assessment project for CodeYoung
+
+    Developed by Chethan C. Malli
+
+A View Portfolio button was also added.
+
+Portfolio:
+
+    https://chethumalli-portfolio.vercel.app/
+
+---
+
+# 6. Mentor Directory
+
+## User Prompt
+
+Add a mentor directory with multiple mentors.
+
+## AI Response
+
+The application can include 10 demo mentors.
+
+Example mentor information:
 
 - Name
-- Email
+- Role
 - Timezone
-- Active status
-- Working hours
-- Working days
-- Maximum daily bookings
+- Experience
+- Education
+- Languages
+- Specialties
+- Student age focus
 
-The system can automatically assign an eligible mentor instead of asking the parent to manually select one.
+The mentor directory should be a product-exploration feature.
 
-Mentor availability should depend on:
+Parents do not need to manually select a mentor during booking.
 
-1. Mentor active status
-2. Mentor timezone
-3. Working hours
-4. Working days
-5. Daily booking capacity
-6. Existing bookings
-7. Booking overlap
+The backend should automatically determine which mentor is eligible for the selected time.
 
 ---
 
-# 6. Timezone Handling
+# 7. Mentor Database Model
 
-## User
+## User Prompt
 
-The application should support parents and mentors in different timezones.
+Create a MongoDB mentor model.
 
-## AI Agent
+## AI Response
 
-All booking timestamps should be stored in UTC.
+The mentor model should contain:
 
-The parent selects an IANA timezone such as:
+    name
+    email
+    timezone
+    workingHours
+    workingDays
+    isActive
 
-- Asia/Kolkata
-- Europe/London
-- America/New_York
+The mentor's timezone is important because working hours must be evaluated in the mentor's local timezone.
 
-The application converts the parent's selected local time into UTC.
+---
 
-The backend then converts that UTC time into each mentor's local timezone when checking availability.
+# 8. Booking Database Model
 
-Luxon is used for timezone conversion and DST-aware calculations.
+## User Prompt
 
-The flow is:
+Create a MongoDB booking model.
+
+## AI Response
+
+The booking model should store:
+
+    parentName
+    parentEmail
+    parentTimezone
+    studentName
+    studentAge
+    mentorId
+    mentorName
+    mentorTimezone
+    startTimeUTC
+    endTimeUTC
+    classLink
+    status
+
+The timestamps should be stored in UTC.
+
+This creates a consistent source of truth while supporting parents and mentors in different timezones.
+
+---
+
+# 9. Timezone Handling
+
+## User Prompt
+
+Implement timezone-aware scheduling and DST support.
+
+## AI Response
+
+Use Luxon with IANA timezone identifiers.
+
+Examples:
+
+    Asia/Kolkata
+    Europe/London
+    America/New_York
+    America/Chicago
+    America/Los_Angeles
+
+The conversion flow should be:
 
     Parent Local Time
-           |
-           v
-      IANA Timezone
-           |
-           v
-           UTC
-           |
-           v
-        MongoDB
+          ↓
+    Parent IANA Timezone
+          ↓
+    Luxon
+          ↓
+    UTC
+          ↓
+    MongoDB
 
-This provides a consistent time representation across different locations.
+When checking mentor availability:
 
----
+    Parent Local Time
+          ↓
+    Convert to UTC
+          ↓
+    Convert UTC to Mentor Timezone
+          ↓
+    Check Mentor Local Date
+          ↓
+    Check Mentor Working Hours
+          ↓
+    Check Capacity
+          ↓
+    Check Booking Conflict
 
-# 7. Mentor Working Hours
-
-## User
-
-Mentors should only be considered available during working hours.
-
-## AI Agent
-
-The application can use a working window such as:
-
-    09:00 - 20:00
-
-For every requested slot, the backend converts the slot into the mentor's timezone and checks whether the entire trial class fits inside the mentor's working hours.
-
-A one-hour trial class should not be allowed to cross the mentor's working day boundary.
+IANA timezones should be used instead of manually configured UTC offsets because offsets can change due to daylight saving time.
 
 ---
 
-# 8. Daily Booking Limits
+# 10. Availability Service
 
-## User
+## User Prompt
 
-Each mentor should have a maximum number of bookings per day.
+Create an availability service that returns available trial slots.
 
-## AI Agent
+## AI Response
 
-Each mentor can have a `maxDailyBookings` value.
+The availability service should:
 
-Before considering a mentor available, the backend counts confirmed bookings for that mentor's local calendar day.
+1. Fetch active mentors.
+2. Generate 60-minute trial slots.
+3. Interpret the selected date in the parent's timezone.
+4. Convert each slot to UTC.
+5. Convert the UTC slot into each mentor's timezone.
+6. Check the mentor's local working day.
+7. Check the mentor's working hours.
+8. Check the mentor's daily booking capacity.
+9. Check overlapping confirmed bookings.
+10. Return the slots with available mentor information.
 
-If the mentor has reached the configured limit, the mentor is excluded from availability.
-
-This is important because the day should be based on the mentor's timezone rather than simply the parent's timezone.
+The backend should be responsible for deciding actual availability rather than trusting the frontend.
 
 ---
 
-# 9. Booking Conflict Prevention
+# 11. 60-Minute Trial Classes
 
-## User
+## User Prompt
 
-A mentor should not receive two bookings at the same time.
+The assessment requires trial classes to have a defined duration.
 
-## AI Agent
+## AI Response
 
-The backend should check for overlapping confirmed bookings.
+Use a 60-minute trial duration.
 
-For two bookings:
+For each slot:
+
+    startTimeUTC
+    +
+    60 minutes
+    =
+    endTimeUTC
+
+The backend should validate the duration rather than relying only on frontend values.
+
+---
+
+# 12. Mentor Working Hours
+
+## User Prompt
+
+How should mentor working hours be handled?
+
+## AI Response
+
+Working hours must be evaluated in the mentor's local timezone.
+
+For example:
+
+    Parent Time
+         ↓
+    UTC
+         ↓
+    Mentor Timezone
+         ↓
+    Mentor Local Time
+         ↓
+    Working Hours Check
+
+A mentor should only be considered available when the complete 60-minute trial falls within the mentor's configured working window.
+
+---
+
+# 13. Daily Mentor Capacity
+
+## User Prompt
+
+The assessment says a mentor can conduct a maximum of two demo classes per day. Implement this.
+
+## AI Response
+
+The backend should count confirmed bookings for the mentor's local calendar day.
+
+The process is:
+
+    UTC Booking
+         ↓
+    Mentor Timezone
+         ↓
+    Mentor Local Date
+         ↓
+    Count Confirmed Bookings
+         ↓
+    Compare With Daily Limit
+
+If the mentor already has two confirmed bookings for that local day, the mentor should not be returned as available.
+
+---
+
+# 14. Booking Conflict Prevention
+
+## User Prompt
+
+Prevent two bookings from being assigned to the same mentor at overlapping times.
+
+## AI Response
+
+Use interval overlap checking.
+
+The overlap condition is:
 
     Existing Start < New End
     AND
     Existing End > New Start
 
-If both conditions are true, the bookings overlap.
+If both conditions are true, the booking overlaps.
 
-The booking should be rejected when an overlap is detected.
-
----
-
-# 10. Student Validation
-
-## User
-
-The student age should be between 6 and 17.
-
-## AI Agent
-
-The backend should validate the student age.
-
-Valid:
-
-    6 through 17
-
-Invalid:
-
-    below 6
-    above 17
-
-Validation should be performed on the backend so that invalid requests cannot bypass frontend validation.
+The mentor should then be excluded from the available mentor list.
 
 ---
 
-# 11. API Design
+# 15. Cross-Midnight Protection
 
-## User
+## User Prompt
 
-Create APIs for availability and booking.
+Prevent a trial booking from crossing into a different mentor calendar day.
 
-## AI Agent
+## AI Response
 
-The main APIs can include:
+After converting the booking into the mentor's timezone, compare the local dates.
 
-### Health Check
+    Mentor Start Local Date
+              ==
+    Mentor End Local Date
+
+If the dates differ, the mentor should not be considered available for that slot.
+
+This prevents a 60-minute booking from incorrectly consuming capacity across two mentor calendar days.
+
+---
+
+# 16. Student Validation
+
+## User Prompt
+
+The platform should collect the student's name and age.
+
+## AI Response
+
+The frontend should collect:
+
+    Student Name
+    Student Age
+
+The supported age range is:
+
+    6 to 17
+
+The backend should validate the age as well so invalid API requests cannot bypass frontend validation.
+
+---
+
+# 17. Zod Validation
+
+## User Prompt
+
+Add backend request validation.
+
+## AI Response
+
+Zod can be used to validate:
+
+    Parent Name
+    Parent Email
+    Parent Timezone
+    Student Name
+    Student Age
+    Start Time
+    End Time
+
+Invalid requests should return an appropriate API error before booking logic executes.
+
+This provides backend protection even if the frontend validation is bypassed.
+
+---
+
+# 18. API Design
+
+## User Prompt
+
+Create REST API endpoints for the booking system.
+
+## AI Response
+
+The main endpoints are:
 
     GET /api/health
 
-### Availability
-
     GET /api/availability?date=YYYY-MM-DD&timezone=IANA_TIMEZONE
-
-### Booking
 
     POST /api/bookings
 
-The availability API calculates the available one-hour trial slots.
+Example availability request:
 
-The booking API validates the request, checks mentor availability, prevents conflicts, creates the booking, and returns confirmation information.
+    /api/availability?date=2026-09-27&timezone=Asia%2FKolkata
 
----
+Example booking request:
 
-# 12. Availability Controller
-
-## User
-
-Implement the availability controller with validation.
-
-## AI Agent
-
-The controller validates:
-
-- Date format
-- Timezone
-- IANA timezone validity
-
-It then calls the availability service.
-
-The controller returns:
+    POST /api/bookings
 
     {
-      "success": true,
-      "date": "2026-09-27",
-      "timezone": "Asia/Kolkata",
-      "slots": []
+      "parentName": "Test Parent",
+      "parentEmail": "parent@example.com",
+      "parentTimezone": "Asia/Kolkata",
+      "studentName": "Test Student",
+      "studentAge": 12,
+      "startTimeUTC": "2026-09-27T04:30:00.000Z",
+      "endTimeUTC": "2026-09-27T05:30:00.000Z"
     }
 
-Invalid requests return appropriate HTTP error responses.
+---
+
+# 19. Backend Layered Architecture
+
+## User Prompt
+
+Keep the backend maintainable and separated into layers.
+
+## AI Response
+
+Use:
+
+    Routes
+       ↓
+    Controllers
+       ↓
+    Services
+       ↓
+    Models
+       ↓
+    MongoDB
+
+Routes define endpoints.
+
+Controllers handle HTTP requests and responses.
+
+Services contain business logic such as:
+
+- Availability calculation
+- Mentor matching
+- Booking validation
+- Booking creation
+- Timezone processing
+
+Models define MongoDB structures.
+
+Utilities contain reusable functionality such as timezone helpers and seed scripts.
 
 ---
 
-# 13. Availability Service
+# 20. MongoDB Atlas Setup
 
-## User
+## User Prompt
 
-Implement the availability service.
+Connect the backend to MongoDB Atlas.
 
-## AI Agent
+## AI Response
 
-The service should:
-
-1. Parse the selected date using the parent timezone.
-2. Load active mentors.
-3. Generate hourly trial slots.
-4. Convert each slot to UTC.
-5. Convert the slot into each mentor's timezone.
-6. Check working hours.
-7. Check mentor daily capacity.
-8. Check overlapping bookings.
-9. Return slots with available mentor counts.
-
-The trial duration is:
-
-    60 minutes
-
-The default booking window is:
-
-    09:00 - 20:00
-
----
-
-# 14. MongoDB Setup
-
-## User
-
-The project needs MongoDB Atlas.
-
-## AI Agent
-
-MongoDB Atlas can be used as the cloud database.
-
-The backend should use an environment variable:
+Store the MongoDB connection string in an environment variable:
 
     MONGODB_URI=your_mongodb_connection_string
 
-The `.env` file must not be committed to GitHub.
+The actual `.env` file should never be committed to GitHub.
 
-The application uses Mongoose for MongoDB access.
+A `.env.example` file should document the required variables.
 
----
-
-# 15. Mentor Seed Data
-
-## User
-
-The production database has no mentors. We need seed data.
-
-## AI Agent
-
-Create a mentor seed script:
-
-    server/src/utils/seedMentors.ts
-
-The seed script inserts the initial mentor records.
-
-The command is:
-
-    npx tsx src/utils/seedMentors.ts
-
-The seed data contains mentors across multiple timezones.
+MongoDB Compass can be used to verify the connection and inspect collections during development.
 
 ---
 
-# 16. Frontend Environment Variable
+# 21. Mentor Seed Data
 
-## User
+## User Prompt
 
-The frontend needs to communicate with the backend.
+Create initial mentor data for the assessment.
 
-## AI Agent
+## AI Response
 
-Use the following for local development:
+Create a seed script that inserts 10 demo mentors.
 
-    VITE_API_URL=http://localhost:5000
+The mentors should be distributed across multiple timezones, including:
 
-For production, use the deployed Render API:
+    Asia/Kolkata
+    Europe/London
+    America/New_York
 
-    VITE_API_URL=https://elevora-api.onrender.com
-
-The frontend availability request is:
-
-    GET /api/availability?date=DATE&timezone=TIMEZONE
+This provides enough data to demonstrate timezone-aware scheduling.
 
 ---
 
-# 17. Demo Classroom
+# 22. MongoDB Connection Debugging
 
-## User
+## User Prompt
 
-After booking, I want the confirmation page to show a demo class option.
+The MongoDB connection is not working from the development environment.
 
-When the user clicks it, it should open a new tab.
+## AI Response
 
-## AI Agent
+Check the MongoDB Atlas network access configuration.
 
-The booking confirmation can provide:
+Verify:
 
-    Try Demo Class
+- MongoDB URI
+- Username
+- Password
+- Cluster address
+- Database name
+- Network access rules
 
-The demo class can open in a new browser tab.
+After updating the Atlas configuration, verify the connection using the application and MongoDB Compass.
 
-The flow is:
+---
+
+# 23. Availability Debugging
+
+## User Prompt
+
+Availability is producing invalid slots for mentors.
+
+## AI Response
+
+The availability calculation should not rely only on the parent's local date and time.
+
+For each slot:
+
+    Parent Local Time
+          ↓
+    UTC
+          ↓
+    Mentor Local Time
+          ↓
+    Mentor Local Date
+          ↓
+    Mentor Working Hours
+
+The mentor's local date and working hours must be checked after timezone conversion.
+
+This resolves cases where the parent and mentor are in different calendar days.
+
+---
+
+# 24. Booking Capacity Testing
+
+## User Prompt
+
+Test the mentor daily capacity.
+
+## AI Response
+
+Create test bookings for the same mentor and local calendar day.
+
+After the configured daily limit is reached, that mentor should no longer appear as eligible.
+
+Test bookings should be removed after verification so the database remains clean for final assessment testing.
+
+---
+
+# 25. Student Data Persistence Issue
+
+## User Prompt
+
+The frontend collects student information but it is not being stored correctly.
+
+## AI Response
+
+The student fields need to exist across all layers:
+
+    Frontend Request
+          ↓
+    Controller
+          ↓
+    Booking Service
+          ↓
+    Booking Model
+          ↓
+    MongoDB
+
+The booking model should contain:
+
+    studentName
+    studentAge
+
+The API request should send both fields and the backend should persist them.
+
+---
+
+# 26. Frontend and Backend Contract
+
+## User Prompt
+
+Make sure the frontend and backend responses match.
+
+## AI Response
+
+Review the complete API contract.
+
+The frontend should receive the fields it needs for:
+
+- Booking confirmation
+- Mentor information
+- Booking date
+- Booking time
+- Demo class access
+
+The backend should remain the authoritative source for:
+
+- Availability
+- Mentor assignment
+- Booking creation
+- Booking validation
+
+The frontend should not independently decide whether a mentor is actually available.
+
+---
+
+# 27. Demo Class Feature
+
+## User Prompt
+
+Add a demo class experience after successful booking. A real meeting service is not required.
+
+## AI Response
+
+A simulated demo classroom can be implemented because the assessment allows a dummy class link.
+
+The flow should be:
 
     Booking Confirmed
-          |
-          v
+          ↓
     Try Demo Class
-          |
-          v
-    New Browser Tab
-          |
-          v
+          ↓
     Demo Classroom
-          |
-          v
+          ↓
     Start Demo Class
-          |
-          v
+          ↓
     Leave Demo
-          |
-          v
+          ↓
     Gurukula Home Page
 
-Since the assessment does not require a real video conferencing system, the classroom can be simulated.
-
-The booking information can be stored in browser local storage so it remains available in the new tab.
+The demo should provide a realistic post-booking experience without requiring Google Meet, Zoom, or another video service.
 
 ---
 
-# 18. Demo Classroom Information
+# 28. Demo Class New-Tab Experience
 
-## User
+## User Prompt
 
-The demo classroom should show the booking and student information.
+Make the Try Demo Class button open the demo in a new browser tab.
 
-## AI Agent
+## AI Response
 
-The demo classroom can display:
+Generate a demo URL from the current application origin:
 
-- Student name
-- Student age
-- Parent information
-- Mentor information
-- Selected date
-- Selected time
-- Parent timezone
-- Trial class duration
-- Demo classroom status
+    /?demo=1
 
-The demo is intended to demonstrate the complete customer journey.
+Open it using a new browser tab.
 
----
+The existing booking page remains available in the original tab.
 
-# 19. Testing
+The application should distinguish between:
 
-## User
+    Normal URL
+          ↓
+    Booking Page
 
-Test the complete booking flow.
+and:
 
-## AI Agent
-
-The following areas should be tested:
-
-- MongoDB connection
-- Mentor seeding
-- Availability API
-- Multiple mentor timezones
-- UTC conversion
-- DST handling
-- Mentor daily booking limits
-- Booking conflict prevention
-- Student age validation
-- Student detail persistence
-- End-to-end booking
-- Booking confirmation
-- Demo class opening
-- New browser tab behavior
-- Demo classroom local storage
-- Leave Demo navigation
-- Production builds
+    ?demo=1
+          ↓
+    Demo Classroom
 
 ---
 
-# 20. Production Build
+# 29. Demo Booking Data
 
-## User
+## User Prompt
 
-The project should be ready for deployment.
+The demo classroom needs the booking information after opening in a new tab.
 
-## AI Agent
+## AI Response
 
-Build the backend:
+Use browser local storage for the simulated demo experience.
+
+Store information such as:
+
+    Parent Name
+    Student Name
+    Student Age
+    Mentor Name
+    Mentor Timezone
+    Selected Date
+    Selected Time
+    Parent Timezone
+    Booking ID
+
+The demo classroom can read this data when it loads.
+
+This avoids requiring another backend endpoint solely for the simulated classroom.
+
+---
+
+# 30. Demo Classroom
+
+## User Prompt
+
+Create a classroom-style page for the demo experience.
+
+## AI Response
+
+The demo classroom should:
+
+- Display booking information.
+- Display student information.
+- Display mentor information.
+- Show selected date and time.
+- Show the parent timezone.
+- Provide a simulated class environment.
+- Provide a clear Start Demo Class action.
+- Provide a Leave Demo action.
+
+The classroom is intentionally simulated rather than connected to a real video provider.
+
+---
+
+# 31. Leave Demo Navigation
+
+## User Prompt
+
+The Leave Demo button should return to the Gurukula home page.
+
+## AI Response
+
+The Leave Demo action should navigate to the application root:
+
+    /
+
+This returns the user to the main Gurukula booking page.
+
+The flow becomes:
+
+    Demo Classroom
+          ↓
+    Leave Demo
+          ↓
+    /
+          ↓
+    Gurukula Home Page
+
+---
+
+# 32. Demo Refresh Handling
+
+## User Prompt
+
+Make sure the demo classroom still works if the page is refreshed.
+
+## AI Response
+
+The demo classroom should retrieve the booking data from local storage when it loads.
+
+If the data exists:
+
+    Load Demo Booking
+          ↓
+    Display Classroom
+
+If the data does not exist:
+
+    Show Demo Unavailable State
+          ↓
+    Provide Navigation Back to Gurukula
+
+This prevents the classroom from depending entirely on React state from the previous page.
+
+---
+
+# 33. Footer and Portfolio
+
+## User Prompt
+
+Add a View Portfolio button to the footer.
+
+## AI Response
+
+Add a footer containing:
+
+    Gurukula
+    Personalized learning. Real progress.
+    Assessment project for CodeYoung
+    Developed by Chethan C. Malli
+    View Portfolio
+
+Portfolio:
+
+    https://chethumalli-portfolio.vercel.app/
+
+The portfolio link should open separately so it does not interrupt the main booking workflow.
+
+---
+
+# 34. End-to-End Booking Verification
+
+## User Prompt
+
+Verify the complete booking flow.
+
+## AI Response
+
+The complete flow should be tested:
+
+    Open Gurukula
+          ↓
+    Select Timezone
+          ↓
+    Select Date
+          ↓
+    Select Available Slot
+          ↓
+    Enter Parent Details
+          ↓
+    Enter Student Details
+          ↓
+    Review Booking
+          ↓
+    Confirm Booking
+          ↓
+    Booking Confirmation
+          ↓
+    Try Demo Class
+          ↓
+    Demo Opens in New Tab
+          ↓
+    Demo Classroom
+          ↓
+    Leave Demo
+          ↓
+    Gurukula Home Page
+
+MongoDB should also be checked to confirm that the booking was persisted correctly.
+
+---
+
+# 35. Production Build Verification
+
+## User Prompt
+
+Verify that the project builds successfully.
+
+## AI Response
+
+Backend build:
 
     cd server
     npm run build
 
-Build the frontend:
+Frontend build:
 
     cd client
     npm run build
@@ -608,851 +1025,706 @@ Both builds should complete successfully before deployment.
 
 ---
 
-# 21. Git Configuration
+# 36. Environment Configuration
 
-## User
+## User Prompt
+
+Move the backend URL into an environment variable.
+
+## AI Response
+
+Use:
+
+    VITE_API_URL
+
+For local development:
+
+    VITE_API_URL=http://localhost:5000
+
+For production:
+
+    VITE_API_URL=https://elevora-api.onrender.com
+
+This prevents the backend URL from being hardcoded throughout the frontend.
+
+---
+
+# 37. Windows `run.bat` Script
+
+## User Prompt
+
+Can you create a BAT file to run the complete project?
+
+## AI Response
+
+A Windows startup script was created to start both frontend and backend development servers.
+
+The project can be started from the root directory using:
+
+    .\run.bat
+
+The script starts:
+
+    Gurukula Backend
+    Gurukula Frontend
+
+and opens:
+
+    http://localhost:5173
+
+The backend runs at:
+
+    http://localhost:5000
+
+The script was tested successfully on Windows.
+
+---
+
+# 38. Running the Project With `run.bat`
+
+## User Prompt
+
+PowerShell says `run.bat` is not recognized when I type `run.bat`.
+
+## AI Response
+
+Windows PowerShell does not execute files from the current directory by default.
+
+Use:
+
+    .\run.bat
+
+Instead of:
+
+    run.bat
+
+If needed, check the available BAT files using:
+
+    dir *.bat
+
+The project was then successfully started using:
+
+    .\run.bat
+
+---
+
+# 39. Git Configuration
+
+## User Prompt
 
 Prepare the project for GitHub.
 
-## AI Agent
+## AI Response
 
 The repository should contain:
 
     client/
     server/
+    run.bat
     README.md
     TRANSCRIPT.md
     .gitignore
 
-Environment files containing secrets should remain excluded.
+The `.gitignore` should exclude:
 
-The project can be committed to GitHub using:
+    node_modules/
+    dist/
+    .env
+    *.log
 
-    git add .
-    git commit -m "Initial project implementation"
-    git push origin main
-
----
-
-# 22. README Documentation
-
-## User
-
-The assessment requires a README explaining how to run the project.
-
-## AI Agent
-
-The README should contain:
-
-- Project overview
-- Features
-- Technology stack
-- Architecture
-- Project structure
-- Environment variables
-- MongoDB setup
-- Mentor seed instructions
-- Local development instructions
-- API endpoints
-- Booking flow
-- Timezone handling
-- Production deployment
-- Validation and testing
-- Current limitations
-- Future improvements
-- Author information
-
-The README should explain how another developer can clone and run the project.
+Secrets such as MongoDB credentials should never be committed.
 
 ---
 
-# 23. Assessment Transcript Requirement
+# 40. Production Deployment Plan
 
-## User
+## User Prompt
 
-The assessment says that the solution should be submitted as a GitHub repository containing a README that describes how to run the project.
+Deploy the application to Vercel and Render.
 
-It also requires a full transcript containing both prompts and agent responses and says it should be submitted as `TRANSCRIPT.md`.
+## AI Response
 
-## AI Agent
+Use the following architecture:
 
-The repository should contain:
+    User
+      |
+      v
+    Vercel
+    React + Vite
+      |
+      v
+    Render
+    Node.js + Express
+      |
+      v
+    MongoDB Atlas
 
-    elevora-trial-booking/
-    │
-    ├── client/
-    ├── server/
-    ├── README.md
-    └── TRANSCRIPT.md
-
-`README.md` should explain how to run the project.
-
-`TRANSCRIPT.md` should contain the AI-assisted development transcript, including the user prompts and AI responses.
-
-The transcript should not be only a project summary if the assessment specifically requests the AI session transcript.
-
----
-
-# 24. Render Backend Deployment
-
-## User
-
-Deploy the backend to Render.
-
-## AI Agent
-
-Create a Render Web Service connected to the GitHub repository.
-
-Use:
-
-    Root Directory:
-    server/
-
-Build command:
-
-    npm install && npm run build
-
-Start command:
-
-    npm start
-
-Add:
-
-    MONGODB_URI
-
-as a Render environment variable.
-
-The backend was deployed as:
-
-    https://elevora-api.onrender.com
-
-The health endpoint was tested successfully.
-
-Expected response:
-
-    {
-      "success": true,
-      "message": "CodeYoung Trial Booking API is running"
-    }
-
----
-
-# 25. Vercel Frontend Deployment
-
-## User
-
-Deploy the frontend to Vercel.
-
-## AI Agent
-
-Import the GitHub repository into Vercel.
-
-Configure:
-
-    Framework:
-    Vite
-
-    Root Directory:
-    client
-
-    Build Command:
-    npm run build
-
-    Output Directory:
-    dist
-
-Add the production environment variable:
+The frontend uses:
 
     VITE_API_URL=https://elevora-api.onrender.com
+
+The backend uses the MongoDB Atlas connection string through its environment configuration.
+
+---
+
+# 41. Frontend Deployment
+
+## User Prompt
 
 Deploy the frontend.
 
----
+## AI Response
 
-# 26. Production Availability Problem
+The React/Vite frontend can be deployed using Vercel.
 
-## User
+The production frontend deployment is:
 
-The deployed website shows:
+    https://gurukula-trial-booking.vercel.app
 
-    No sessions available
+The visible product branding remains Gurukula.
 
-## AI Agent
-
-The backend was working, but the production MongoDB database did not contain mentor records.
-
-The development database had mentors, but the production Atlas database needed the seed script to be executed.
-
-The Render free plan did not provide the required shell access.
-
-The seed script was therefore run locally against the production MongoDB connection.
+The deployment URL retains the existing deployment name.
 
 ---
 
-# 27. Production Mentor Seeding
+# 42. Backend Deployment
 
-## User
+## User Prompt
 
-Run the mentor seed against the production MongoDB.
+Deploy the backend.
 
-## AI Agent
+## AI Response
 
-The mentor seed command was run:
+The Node.js and Express backend can be deployed using Render.
 
-    npx tsx src/utils/seedMentors.ts
+The production backend is:
 
-The result was:
+    https://elevora-api.onrender.com
 
-    MongoDB connected
-    10 mentors inserted successfully
-    MongoDB disconnected
+The Vercel frontend should use this URL through:
 
-After seeding the production database, the deployed frontend was able to retrieve available mentors and slots.
+    VITE_API_URL
 
 ---
 
-# 28. Production Verification
+# 43. Production Verification
 
-## User
+## User Prompt
 
-The deployed application is working now.
+Verify the deployed application.
 
-## AI Agent
+## AI Response
 
-The production application was verified.
+The deployed system should be checked end to end:
 
-The working architecture is:
+- Open the Vercel frontend.
+- Confirm the UI loads.
+- Select a timezone.
+- Select a date.
+- Load availability.
+- Select a slot.
+- Enter parent details.
+- Enter student details.
+- Confirm the booking.
+- Verify backend communication.
+- Verify MongoDB persistence.
+- Open Try Demo Class.
+- Confirm the demo opens in a new tab.
+- Test the demo classroom.
+- Test Leave Demo.
+- Confirm return to the Gurukula home page.
+- Test the View Portfolio button.
+
+The production architecture is:
 
     Vercel
-       |
-       v
-    React + Vite Frontend
-       |
-       v
+       ↓
     Render
-       |
-       v
-    Express API
-       |
-       v
+       ↓
     MongoDB Atlas
 
-The booking flow was tested successfully.
-
 ---
 
-# 29. Footer Branding
+# 44. README Documentation
 
-## User
+## User Prompt
 
-Add developer information to the footer.
+Create a professional README for the project.
 
-## AI Agent
+## AI Response
 
-The footer can include:
+The README should document:
 
-    Gurukula
-    Personalized learning. Real progress.
-
-    © 2026 Gurukula · Assessment project for CodeYoung
-
-    Developed by Chethan C. Malli
-
-A portfolio button can also be added below the developer information.
-
----
-
-# 30. Portfolio Button
-
-## User
-
-Add a View Portfolio button below the developer name.
-
-## AI Agent
-
-The footer can contain a button such as:
-
-    View Portfolio →
-
-The button should open the portfolio in a new browser tab.
-
-The portfolio link used in the project is:
-
-    https://chethumalli-portfolio.vercel.app/
-
----
-
-# 31. Dark Footer
-
-## User
-
-Make the footer dark.
-
-## AI Agent
-
-The footer can use a dark background with light text.
-
-Example styling:
-
-    <footer className="border-t border-slate-800 bg-[#020617]">
-
-The footer should contain:
-
-- Gurukula branding
-- Tagline
-- Assessment information
-- Developer name
-- Portfolio button
-
----
-
-# 32. Card Border Styling
-
-## User
-
-The cards need more visible borders.
-
-## AI Agent
-
-Use a slightly stronger but still subtle border.
-
-For example:
-
-    border-slate-300
-
-instead of:
-
-    border-slate-200
-
-This keeps the UI clean without making the cards look too heavy.
-
----
-
-# 33. Slow Availability Search
-
-## User
-
-It is taking time to search for available slots.
-
-## AI Agent
-
-The availability service was inspected.
-
-The frontend makes only one availability request:
-
-    GET /api/availability?date=DATE&timezone=TIMEZONE
-
-The controller itself was not the main performance issue.
-
-The service was performing MongoDB queries inside nested loops.
-
-With approximately:
-
-    11 time slots
-    ×
-    10 mentors
-    ×
-    2 database queries
-
-the service could perform approximately 220 MongoDB queries for a single availability request.
-
-This can cause unnecessary latency.
-
----
-
-# 34. Availability Optimization
-
-## User
-
-How can the availability search be made faster?
-
-## AI Agent
-
-Instead of querying MongoDB repeatedly for every mentor and every slot:
-
-1. Fetch active mentors once.
-2. Fetch relevant confirmed bookings once.
-3. Use `.lean()` for read-only queries.
-4. Perform the remaining availability checks in memory.
-
-The optimized service reduces the number of MongoDB queries significantly.
-
-The response structure remains the same.
-
-The optimization preserves:
-
-- Timezone handling
-- Mentor working hours
-- Daily capacity
-- Booking overlap detection
-- Existing API behavior
-
----
-
-# 35. Project Branding Discussion
-
-## User
-
-I want to change the project name from Elevora to Gurukula.
-
-## AI Agent
-
-The visible project branding can be changed from:
-
-    Elevora
-
-to:
-
-    Gurukula
-
-The product title can become:
-
-    Gurukula — Trial Class Booking Platform
-
-The repository and deployment names do not necessarily need to be changed because they are technical identifiers.
-
----
-
-# 36. Gurukula Meaning
-
-## User
-
-What does Gurukula mean?
-
-## AI Agent
-
-Gurukula is a traditional term associated with a place or system where students learn under the guidance of a teacher or guru.
-
-It has a strong connection to:
-
-- Learning
-- Teachers
-- Mentors
-- Education
-- Student development
-
-This fits the concept of a platform where students learn from mentors.
-
----
-
-# 37. Branding Decision
-
-## User
-
-Which is better: Elevora or Gurukula?
-
-## AI Agent
-
-The two names communicate different ideas.
-
-Elevora has a modern startup-style sound and can suggest ideas such as growth or elevation.
-
-Gurukula has a more direct educational and mentor-oriented meaning.
-
-For the product concept, Gurukula provides a clear connection to learning and mentorship.
-
-The existing technical deployment names can remain unchanged while the visible product branding becomes Gurukula.
-
----
-
-# 38. Branding Update
-
-## User
-
-Change Elevora to Gurukula everywhere.
-
-## AI Agent
-
-The branding should be changed in:
-
-- Navbar
-- Footer
-- Page titles
-- Booking confirmation
+- Project overview
+- Features
+- Tech stack
+- Live deployment
+- Architecture
+- Frontend
+- Backend
 - Demo classroom
-- Documentation
-- README
-- TRANSCRIPT
-- Other visible UI text
-
-However, actual deployed URLs should not be changed unless the corresponding deployment service is also renamed.
-
-For example:
-
-    Gurukula
-
-can be the product brand while:
-
-    https://elevora-api.onrender.com
-
-remains the existing backend URL.
-
----
-
-# 39. Git Push Problem
-
-## User
-
-After changing the branding, pushing to GitHub produced:
-
-    ! [rejected] main -> main (non-fast-forward)
-
-    error: failed to push some refs to ...
-
-## AI Agent
-
-The local branch and GitHub branch had diverged.
-
-The local branch contained one commit that the remote did not have, while the remote contained two commits that the local branch did not have.
-
-The correct approach was to merge the remote changes rather than force pushing.
-
-The command was:
-
-    git pull origin main --no-rebase
-
----
-
-# 40. Merge Conflicts
-
-## User
-
-The pull resulted in conflicts in:
-
-    README.md
-    TRANSCRIPT.md
-
-## AI Agent
-
-The conflicts occurred because both local and remote versions had changes.
-
-Since the local versions contained the intended Gurukula documentation, the local versions were retained.
-
-The commands used were:
-
-    git checkout --ours README.md
-    git add README.md
-
-    git checkout --ours TRANSCRIPT.md
-    git add TRANSCRIPT.md
-
-Then the merge was completed with:
-
-    git commit -m "Merge remote changes and update branding to Gurukula"
-
-Finally:
-
-    git push origin main
-
-The push completed successfully.
-
----
-
-# 41. Production Gurukula Verification
-
-## User
-
-The Vercel website now shows Gurukula and everything is working.
-
-## AI Agent
-
-The following production functionality was confirmed:
-
-- Gurukula branding
-- Homepage
-- Mentor directory
-- Available slots
+- Footer and portfolio
+- Timezone handling
+- Mentor availability
+- API endpoints
+- Project structure
+- Local setup
+- `run.bat`
+- Production deployment
+- Production builds
+- Validation and testing
+- Design decisions
 - Booking flow
-- Booking confirmation
-- Demo class
-- Backend communication
-- MongoDB persistence
+- DST handling
+- Conflict prevention
+- Mentor capacity
+- API architecture
+- Current limitations
+- Future improvements
+- Security considerations
+- Author
+- Assessment information
+- License
 
-The production application remained functional after the branding update.
-
----
-
-# 42. Technical Names vs Product Branding
-
-## User
-
-The frontend and backend are still named Elevora. Is that okay?
-
-## AI Agent
-
-Yes.
-
-The technical deployment names can remain:
-
-    GitHub repository:
-    elevora-trial-booking
-
-    Render service:
-    elevora-api
-
-    Render URL:
-    https://elevora-api.onrender.com
-
-while the visible product is:
-
-    Gurukula
-
-The technical URL does not need to match the product branding.
-
-This avoids unnecessary deployment changes and keeps the existing working application stable.
+The README was updated to use Gurukula branding while preserving the existing deployment URLs.
 
 ---
 
-# 43. README Correction
+# 45. README Local Startup Documentation
 
-## User
+## User Prompt
 
-The README has Gurukula branding but also has incorrect technical URLs such as:
+Add the BAT command to the README.
 
-    https://Gurukula-api.onrender.com
-    https://Gurukula-trial-booking.vercel.app
+## AI Response
 
-## AI Agent
+The README should include:
 
-Those URLs should not be invented.
+    ## Running Locally
 
-The README should use the actual deployed backend URL:
+    ### Run Using run.bat
 
-    https://elevora-api.onrender.com
+    From the project root:
 
-The production environment variable should remain:
+        .\run.bat
 
-    VITE_API_URL=https://elevora-api.onrender.com
+The script starts both services.
 
-The GitHub clone URL should also remain the actual repository URL:
+Default URLs:
 
-    https://github.com/Chethumalli/elevora-trial-booking.git
+    Frontend: http://localhost:5173
+    Backend:  http://localhost:5000
 
-The technical project structure can therefore remain:
+Manual startup commands should also remain documented:
 
-    elevora-trial-booking/
-
-while all visible product branding remains:
-
-    Gurukula
-
----
-
-# 44. Final README Branding
-
-## User
-
-The README should say Gurukula for the frontend and backend branding, while keeping the actual deployment URLs correct.
-
-## AI Agent
-
-The final README should use:
-
-    Gurukula — Trial Class Booking Platform
-
-for the product title.
-
-It should refer to:
-
-    Gurukula frontend
-    Gurukula backend
-    Gurukula home page
-    Gurukula branding
-
-The actual technical URLs remain:
-
-    https://elevora-api.onrender.com
+    cd server
+    npm run dev
 
 and:
 
-    https://github.com/Chethumalli/elevora-trial-booking.git
-
-This separates product branding from technical deployment identifiers.
-
----
-
-# 45. Final Project State
-
-At the end of the development process, the application contains:
-
-    Gurukula
-    │
-    ├── React + TypeScript + Vite frontend
-    │
-    ├── Node.js + Express + TypeScript backend
-    │
-    ├── MongoDB Atlas database
-    │
-    ├── Timezone-aware availability
-    │
-    ├── Mentor availability management
-    │
-    ├── Daily mentor capacity
-    │
-    ├── Booking conflict prevention
-    │
-    ├── Student age validation
-    │
-    ├── Automatic mentor assignment
-    │
-    ├── Booking confirmation
-    │
-    ├── Demo classroom
-    │
-    ├── New-tab demo experience
-    │
-    ├── Mentor directory
-    │
-    ├── Responsive UI
-    │
-    └── Portfolio navigation
+    cd client
+    npm run dev
 
 ---
 
-# 46. Final Architecture
+# 46. Transcript Documentation
 
-                    USER
-                      |
-                      v
-             VERCEL FRONTEND
-             React + Vite
-                      |
-                      |
-                      v
-             RENDER BACKEND
-             Node + Express
-                      |
-                      |
-                      v
-                MONGODB ATLAS
-                      |
-                      v
-              Booking + Mentors
+## User Prompt
+
+The assessment requires a full transcript of AI sessions containing prompts and agent responses.
+
+## AI Response
+
+The project should include a `TRANSCRIPT.md` file documenting the AI-assisted development process.
+
+The transcript should cover:
+
+- Project objective
+- Technology selection
+- Architecture
+- Frontend development
+- Backend development
+- Database design
+- Timezone implementation
+- Availability logic
+- Mentor capacity
+- Booking conflicts
+- Validation
+- Demo classroom
+- New-tab experience
+- Leave Demo navigation
+- Footer and portfolio
+- Debugging
+- Testing
+- `run.bat`
+- Production deployment
+- README documentation
+- AI-assisted development
+- Final application workflow
+
+The transcript should clearly distinguish user requests from AI guidance.
 
 ---
 
-# 47. Final Booking Flow
+# 47. Final AI-Assisted Development Summary
+
+## User Prompt
+
+Summarize how AI was used in the project.
+
+## AI Response
+
+AI assistance was used as a development and problem-solving assistant throughout the project.
+
+AI guidance covered:
+
+- Project planning
+- Technology selection
+- Architecture
+- Frontend implementation
+- Backend implementation
+- MongoDB schema design
+- API design
+- Timezone calculations
+- Mentor availability
+- Booking conflict prevention
+- Daily mentor capacity
+- Zod validation
+- Debugging
+- TypeScript issues
+- UI/UX refinement
+- Demo classroom implementation
+- Navigation
+- Local storage handling
+- Windows development automation
+- Production deployment
+- README preparation
+- Transcript preparation
+
+The code was implemented, tested, debugged, and verified during development.
+
+---
+
+# 48. Final Application Scope
+
+The completed Gurukula application includes:
+
+    ✓ Responsive booking UI
+
+    ✓ Timezone selection
+
+    ✓ Date selection
+
+    ✓ Available trial slots
+
+    ✓ 60-minute trial classes
+
+    ✓ Mentor availability
+
+    ✓ Mentor working hours
+
+    ✓ Mentor working days
+
+    ✓ Maximum two confirmed demo classes per mentor per local day
+
+    ✓ Booking conflict prevention
+
+    ✓ Cross-midnight protection
+
+    ✓ Parent details
+
+    ✓ Student details
+
+    ✓ Student age validation
+
+    ✓ Automatic mentor assignment
+
+    ✓ MongoDB persistence
+
+    ✓ Booking confirmation
+
+    ✓ Demo class experience
+
+    ✓ Demo class opens in a new browser tab
+
+    ✓ Demo booking data persistence
+
+    ✓ Leave Demo navigation
+
+    ✓ Return to Gurukula home page
+
+    ✓ Mentor directory
+
+    ✓ Mentor category filtering
+
+    ✓ REST API
+
+    ✓ Zod validation
+
+    ✓ Luxon timezone handling
+
+    ✓ IANA timezone support
+
+    ✓ DST-aware calculations
+
+    ✓ Footer branding
+
+    ✓ View Portfolio button
+
+    ✓ Windows run.bat startup script
+
+    ✓ Vercel frontend deployment
+
+    ✓ Render backend deployment
+
+    ✓ MongoDB Atlas database
+
+    ✓ Production API configuration
+
+    ✓ Production builds
+
+---
+
+# 49. Final Customer Journey
+
+The final customer journey is:
 
     Parent Opens Gurukula
-            |
-            v
-    Select Timezone
-            |
-            v
-    Select Date
-            |
-            v
-    View Available Slots
-            |
-            v
-    Select Trial Slot
-            |
-            v
-    Enter Parent Details
-            |
-            v
-    Enter Student Details
-            |
-            v
-    Backend Validation
-            |
-            v
-    Find Available Mentor
-            |
-            v
-    Create Booking
-            |
-            v
-    Store Booking in MongoDB
-            |
-            v
+            ↓
+    Selects Timezone
+            ↓
+    Selects Date
+            ↓
+    Views Available Slots
+            ↓
+    Selects Trial Slot
+            ↓
+    Enters Parent Details
+            ↓
+    Enters Student Details
+            ↓
+    Reviews Booking
+            ↓
+    Confirms Booking
+            ↓
     Booking Confirmation
-            |
-            v
+            ↓
     Try Demo Class
-            |
-            v
-    Open Demo Classroom
-            |
-            v
+            ↓
+    Demo Opens in New Tab
+            ↓
+    Demo Classroom
+            ↓
+    Start Demo Class
+            ↓
     Leave Demo
-            |
-            v
+            ↓
     Gurukula Home Page
+            ↓
+    View Portfolio Available in Footer
+
+This provides a complete customer experience from selecting a trial class to booking, confirmation, simulated classroom access, and returning to the main application.
 
 ---
 
-# 48. Final Production Status
+# 50. Final Technical Architecture
 
-The application was successfully deployed and tested.
+The final system architecture is:
 
-### Frontend
+    ┌─────────────────────────────┐
+    │           Parent            │
+    │        Web Browser          │
+    └──────────────┬──────────────┘
+                   │
+                   ▼
+    ┌─────────────────────────────┐
+    │           Vercel            │
+    │      React + TypeScript     │
+    │           Vite              │
+    │       Tailwind CSS          │
+    └──────────────┬──────────────┘
+                   │
+                   │ REST API
+                   ▼
+    ┌─────────────────────────────┐
+    │           Render            │
+    │      Node.js + Express      │
+    │        TypeScript           │
+    │                             │
+    │  Routes → Controllers       │
+    │          → Services         │
+    │          → Models           │
+    └──────────────┬──────────────┘
+                   │
+                   ▼
+    ┌─────────────────────────────┐
+    │       MongoDB Atlas         │
+    │                             │
+    │        Mentors              │
+    │        Bookings             │
+    └─────────────────────────────┘
 
-Deployed using Vercel.
+Timezone processing is handled by Luxon.
 
-### Backend
+Request validation is handled by Zod.
 
-Deployed using Render.
+---
 
-Current backend URL:
+# 51. Live Deployment
+
+The final application is publicly deployed.
+
+Frontend:
+
+    https://gurukula-trial-booking.vercel.app
+
+Backend:
 
     https://elevora-api.onrender.com
 
-### Database
+Portfolio:
 
-MongoDB Atlas.
+    https://chethumalli-portfolio.vercel.app/
 
-### Production Environment
+The frontend communicates with the backend using:
 
     VITE_API_URL=https://elevora-api.onrender.com
 
-### Branding
-
-    Gurukula
-
-### Repository
-
-    https://github.com/Chethumalli/elevora-trial-booking
+The deployment demonstrates the complete application flow from frontend interaction through backend processing, database persistence, booking confirmation, and demo classroom access.
 
 ---
 
-# 49. Final Developer Notes
+# 52. Final Result
 
-The project demonstrates full-stack development through:
+The final Gurukula application provides a complete trial-class booking workflow with:
 
-- React
-- TypeScript
-- Vite
-- Tailwind CSS
-- Node.js
-- Express.js
-- MongoDB
-- Mongoose
-- Luxon
-- Zod
-- REST API development
+    Timezone-aware scheduling
+            +
+    IANA timezone support
+            +
+    DST-aware calculations
+            +
+    Mentor availability
+            +
+    Mentor working hours
+            +
+    Mentor daily capacity
+            +
+    Booking conflict prevention
+            +
+    Student validation
+            +
+    Automatic mentor assignment
+            +
+    MongoDB persistence
+            +
+    Booking confirmation
+            +
+    Demo classroom experience
+            +
+    New-tab classroom navigation
+            +
+    Leave Demo navigation
+            +
+    Footer portfolio access
+            +
+    Windows run.bat startup
+            +
+    Vercel frontend deployment
+            +
+    Render backend deployment
+            +
+    MongoDB Atlas database
+            +
+    Responsive user experience
+
+The application was developed with AI-assisted planning, implementation guidance, debugging, testing guidance, documentation, and deployment support.
+
+The final system was tested locally and deployed to production.
+
+---
+
+# 53. Live Deployment Summary
+
+The completed application uses the following architecture:
+
+    User
+      |
+      v
+    Vercel
+    Gurukula React Frontend
+      |
+      v
+    Render
+    Gurukula Express API
+      |
+      v
+    MongoDB Atlas
+
+Live Frontend:
+
+    https://gurukula-trial-booking.vercel.app
+
+Live Backend:
+
+    https://elevora-api.onrender.com
+
+Portfolio:
+
+    https://chethumalli-portfolio.vercel.app/
+
+Local Development:
+
+    .\run.bat
+
+Local Frontend:
+
+    http://localhost:5173
+
+Local Backend:
+
+    http://localhost:5000
+
+---
+
+# 54. Final Project Status
+
+The Gurukula trial class booking platform is completed for the CodeYoung Full-Stack Assessment.
+
+The final submission includes:
+
+    README.md
+    TRANSCRIPT.md
+    client/
+    server/
+    run.bat
+
+The application demonstrates:
+
+- Full-stack development
+- React and TypeScript
+- Node.js and Express
+- MongoDB and Mongoose
+- REST API architecture
 - Timezone-aware scheduling
-- Mentor matching
+- IANA timezone handling
+- DST-aware calculations
+- Mentor availability
+- Mentor daily capacity
 - Booking conflict prevention
-- Data validation
-- MongoDB persistence
-- Vercel deployment
-- Render deployment
-- MongoDB Atlas integration
-
-The project was developed with AI-assisted development support for planning, architecture, implementation guidance, debugging, optimization, deployment guidance, documentation, and UI improvements.
+- Backend validation
+- Automatic mentor assignment
+- Simulated online classroom
+- Responsive UI
+- Local development automation
+- Production deployment
+- AI-assisted development workflow
 
 ---
 
-# 50. Final Branding
+# Developer
 
-## Gurukula
-
-Personalized learning. Real progress.
-
-© 2026 Gurukula · Assessment project for CodeYoung
-
-Developed by Chethan C. Malli
+**Chethan C. Malli**
 
 AI/ML Enthusiast | Full-Stack Developer
 
@@ -1464,6 +1736,8 @@ Portfolio:
 
 https://chethumalli-portfolio.vercel.app/
 
----
+**Gurukula — Trial Class Booking Platform**
 
-# End of Transcript
+Assessment project for CodeYoung
+
+© 2026 Gurukula

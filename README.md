@@ -4,6 +4,8 @@ Gurukula is a timezone-aware trial class booking platform built as a full-stack 
 
 The application allows parents to select their timezone, choose a preferred date and available trial slot, enter parent and student details, receive a confirmed trial booking, and enter a simulated demo classroom experience through the generated demo class link.
 
+---
+
 ## Features
 
 - Clean and responsive booking interface
@@ -29,8 +31,10 @@ The application allows parents to select their timezone, choose a preferred date
 - REST API architecture
 - Local booking data persistence for the demo classroom
 - Responsive UI for booking and demo classroom screens
-- Footer with Gurukula branding
+- Gurukula branding and footer
 - View Portfolio button in the footer
+
+---
 
 ## Tech Stack
 
@@ -57,13 +61,19 @@ The application allows parents to select their timezone, choose a preferred date
 
 - MongoDB Atlas
 
+---
+
 ## Live Deployment
 
-The project is deployed and publicly accessible.
+The application is deployed and publicly accessible.
 
 ### Frontend
 
-The frontend is deployed on Vercel using the existing project deployment.
+Vercel:
+
+https://gurukula-trial-booking.vercel.app
+
+> Note: The deployment URL retains the original project deployment name while the application branding is Gurukula.
 
 ### Backend API
 
@@ -73,49 +83,61 @@ https://elevora-api.onrender.com
 
 ### Database
 
-MongoDB Atlas is used for persistent booking and mentor data.
+MongoDB Atlas is used for persistent mentor and booking data.
 
 ### Deployed Architecture
 
-    User
-      |
-      v
-    Vercel
-    React Frontend
-      |
-      v
-    Render
-    Express REST API
-      |
-      v
-    MongoDB Atlas
+```text
+User
+  |
+  v
+Vercel
+React + Vite Frontend
+  |
+  v
+Render
+Node.js + Express REST API
+  |
+  v
+MongoDB Atlas
+```
 
 The deployed frontend communicates with the deployed backend using the `VITE_API_URL` environment variable.
 
 Production configuration:
 
-    VITE_API_URL=https://elevora-api.onrender.com
+```env
+VITE_API_URL=https://elevora-api.onrender.com
+```
+
+---
 
 ## Architecture
 
 The project follows a simple layered architecture.
 
-    React Frontend
-          |
-          v
-       REST API
-          |
-          v
-      Controllers
-          |
-          v
-       Services
-          |
-          v
-    Mongoose Models
-          |
-          v
-      MongoDB Atlas
+```text
+React Frontend
+      |
+      v
+   REST API
+      |
+      v
+  Controllers
+      |
+      v
+   Services
+      |
+      v
+ Mongoose Models
+      |
+      v
+ MongoDB Atlas
+```
+
+This separation keeps the frontend, API handling, business logic, and database models independent and easier to maintain.
+
+---
 
 ## Frontend
 
@@ -125,7 +147,8 @@ The React application handles:
 - Timezone selection
 - Date selection
 - Availability display
-- Parent and student details
+- Parent details
+- Student details
 - Booking confirmation
 - Demo classroom
 - Mentor directory
@@ -137,13 +160,15 @@ The React application handles:
 
 The frontend is implemented as a single-page React application with conditional rendering for the main booking experience and the demo classroom experience.
 
+---
+
 ## Demo Class Experience
 
 After a successful booking, the confirmation screen provides a **Try Demo Class** option.
 
 When the user opens the demo class:
 
-1. The booking information is saved locally for the demo experience.
+1. Booking information is saved locally for the demo experience.
 2. The demo class opens in a new browser tab.
 3. The demo classroom displays the student's booking information.
 4. The user can enter the simulated demo classroom.
@@ -154,27 +179,31 @@ The demo classroom is intentionally simulated because the assessment allows a du
 
 ### Demo Class Flow
 
-    Booking Confirmed
-          |
-          v
-    Try Demo Class
-          |
-          v
-    New Browser Tab
-          |
-          v
-    Demo Classroom
-          |
-          v
-    Start Demo Class
-          |
-          v
-    Leave Demo
-          |
-          v
-    Gurukula Home Page
+```text
+Booking Confirmed
+       |
+       v
+Try Demo Class
+       |
+       v
+New Browser Tab
+       |
+       v
+Demo Classroom
+       |
+       v
+Start Demo Class
+       |
+       v
+Leave Demo
+       |
+       v
+Gurukula Home Page
+```
 
 The demo booking information is stored in browser local storage so that it remains available when the classroom is opened in a new tab or refreshed.
+
+---
 
 ## Footer and Portfolio
 
@@ -188,11 +217,13 @@ It includes:
 - Developer information
 - View Portfolio button
 
-The **View Portfolio** button provides a direct way for visitors or evaluators to access the developer's portfolio.
+The **View Portfolio** button provides a direct way for visitors and evaluators to access the developer's portfolio.
 
 Portfolio:
 
 https://chethumalli-portfolio.vercel.app/
+
+---
 
 ## Backend
 
@@ -207,28 +238,32 @@ The Express API handles:
 - MongoDB persistence
 - Demo meeting link generation
 
+---
+
 ## Timezone Handling
 
 All booking times are stored in UTC in MongoDB.
 
-The application uses the parent's selected IANA timezone to convert local date/time into UTC.
+The application uses the parent's selected IANA timezone to convert local date and time into UTC.
 
 Luxon is used for timezone conversion and DST-aware calculations.
 
-Example:
+```text
+Parent Local Time
+       |
+       v
+IANA Timezone
+       |
+       v
+UTC Conversion
+       |
+       v
+MongoDB
+```
 
-    Parent local time
-          |
-          v
-    IANA timezone
-          |
-          v
-          UTC
-          |
-          v
-       MongoDB
+When availability is calculated, the system converts the requested parent time into each mentor's timezone and checks whether the mentor is within the configured working window.
 
-When availability is calculated, the system converts the requested parent time into each mentor's timezone and checks whether the mentor is within the working window.
+---
 
 ## Mentor Availability
 
@@ -246,7 +281,7 @@ Mentors have:
 - Active/inactive status
 - Working hours
 - Working days
-- Maximum daily bookings
+- Daily booking capacity
 
 A mentor is considered available when:
 
@@ -256,72 +291,91 @@ A mentor is considered available when:
 4. The mentor has not reached the daily booking limit.
 5. The mentor has no overlapping confirmed booking.
 
+---
+
 ## API Endpoints
 
 ### Health Check
 
-    GET /api/health
+```http
+GET /api/health
+```
 
 ### Get Availability
 
-    GET /api/availability?date=YYYY-MM-DD&timezone=IANA_TIMEZONE
+```http
+GET /api/availability?date=YYYY-MM-DD&timezone=IANA_TIMEZONE
+```
 
 Example:
 
-    /api/availability?date=2026-09-27&timezone=Asia%2FKolkata
+```text
+/api/availability?date=2026-09-27&timezone=Asia%2FKolkata
+```
 
 The availability endpoint calculates available 60-minute trial slots according to the selected parent date and timezone.
 
 ### Create Booking
 
-    POST /api/bookings
+```http
+POST /api/bookings
+```
 
 Request body:
 
-    {
-      "parentName": "Test Parent",
-      "parentEmail": "parent@example.com",
-      "parentTimezone": "Asia/Kolkata",
-      "studentName": "Test Student",
-      "studentAge": 12,
-      "startTimeUTC": "2026-09-27T04:30:00.000Z",
-      "endTimeUTC": "2026-09-27T05:30:00.000Z"
-    }
+```json
+{
+  "parentName": "Test Parent",
+  "parentEmail": "parent@example.com",
+  "parentTimezone": "Asia/Kolkata",
+  "studentName": "Test Student",
+  "studentAge": 12,
+  "startTimeUTC": "2026-09-27T04:30:00.000Z",
+  "endTimeUTC": "2026-09-27T05:30:00.000Z"
+}
+```
+
+---
 
 ## Project Structure
 
-    elevora-trial-booking/
-    │
-    ├── client/
-    │   ├── public/
-    │   ├── src/
-    │   │   ├── App.tsx
-    │   │   ├── App.css
-    │   │   ├── index.css
-    │   │   └── main.tsx
-    │   ├── .env.example
-    │   ├── package.json
-    │   └── vite.config.ts
-    │
-    ├── server/
-    │   ├── src/
-    │   │   ├── config/
-    │   │   ├── controllers/
-    │   │   ├── models/
-    │   │   ├── routes/
-    │   │   ├── services/
-    │   │   ├── utils/
-    │   │   └── server.ts
-    │   ├── package.json
-    │   └── tsconfig.json
-    │
-    ├── .gitignore
-    ├── README.md
-    └── TRANSCRIPT.md
+```text
+gurukula-trial-booking/
+│
+├── client/
+│   ├── public/
+│   ├── src/
+│   │   ├── App.tsx
+│   │   ├── App.css
+│   │   ├── index.css
+│   │   └── main.tsx
+│   ├── .env.example
+│   ├── package.json
+│   └── vite.config.ts
+│
+├── server/
+│   ├── src/
+│   │   ├── config/
+│   │   ├── controllers/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   ├── utils/
+│   │   └── server.ts
+│   ├── package.json
+│   └── tsconfig.json
+│
+├── run.bat
+├── .gitignore
+├── README.md
+└── TRANSCRIPT.md
+```
 
-## Running Locally
+---
 
-### Prerequisites
+# Running Locally
+
+## Prerequisites
 
 Make sure the following are installed:
 
@@ -330,70 +384,139 @@ Make sure the following are installed:
 - Git
 - MongoDB Atlas account or local MongoDB
 
-### 1. Clone the Repository
+---
 
-    git clone https://github.com/Chethumalli/elevora-trial-booking.git
-    cd elevora-trial-booking
+## 1. Clone the Repository
 
-### 2. Install Frontend Dependencies
+```bash
+git clone https://github.com/Chethumalli/gurukula-trial-booking.git
+cd gurukula-trial-booking
+```
 
-    cd client
-    npm install
+---
+
+## 2. Install Frontend Dependencies
+
+```bash
+cd client
+npm install
+```
 
 Create `client/.env`:
 
-    VITE_API_URL=http://localhost:5000
+```env
+VITE_API_URL=http://localhost:5000
+```
 
-### 3. Install Backend Dependencies
+---
 
-    cd ../server
-    npm install
+## 3. Install Backend Dependencies
+
+Open a new terminal and navigate to the backend:
+
+```bash
+cd server
+npm install
+```
 
 Create `server/.env`:
 
-    PORT=5000
-    MONGODB_URI=your_mongodb_connection_string
+```env
+PORT=5000
+MONGODB_URI=your_mongodb_connection_string
+```
 
-Do not commit `.env` files.
+Do not commit `.env` files to GitHub.
 
-### 4. MongoDB Setup
+---
+
+## 4. MongoDB Setup
 
 Create a MongoDB database using MongoDB Atlas or a local MongoDB instance.
 
-Example MongoDB connection string:
+Example connection string:
 
-    MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/your_database_name
+```env
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/gurukula
+```
 
 Replace the username, password, cluster URL, and database name with your own values.
 
-### 5. Seed Mentors
+---
+
+## 5. Seed Mentors
 
 From the `server` directory:
 
-    npx tsx src/utils/seedMentors.ts
+```bash
+npx tsx src/utils/seedMentors.ts
+```
 
 This creates the initial demo mentor data.
 
-### 6. Start Backend
+---
 
-From the `server` directory:
+## 6. Run the Project Using `run.bat`
 
-    npm run dev
+For Windows development, the project includes a `run.bat` file that starts both the backend and frontend development servers.
+
+From the project root:
+
+```powershell
+.\run.bat
+```
+
+The script automatically:
+
+1. Checks whether Node.js is available.
+2. Starts the backend development server.
+3. Starts the frontend development server.
+4. Opens the frontend in the browser.
+
+Default local URLs:
+
+```text
+Frontend: http://localhost:5173
+Backend:  http://localhost:5000
+```
+
+This is the recommended way to start the complete application locally on Windows.
+
+### Manual Startup
+
+The services can also be started separately.
+
+#### Start Backend
+
+```bash
+cd server
+npm run dev
+```
 
 Backend:
 
-    http://localhost:5000
+```text
+http://localhost:5000
+```
 
-### 7. Start Frontend
+#### Start Frontend
 
 Open another terminal:
 
-    cd client
-    npm run dev
+```bash
+cd client
+npm run dev
+```
 
 Frontend:
 
-    http://localhost:5173
+```text
+http://localhost:5173
+```
+
+Keep both terminal windows running while developing.
+
+---
 
 ## Production Deployment
 
@@ -401,13 +524,19 @@ The application is deployed using Vercel, Render, and MongoDB Atlas.
 
 ### Frontend Deployment
 
-The React frontend is deployed on Vercel using the existing Vercel project deployment.
+The React frontend is deployed on Vercel.
+
+```text
+https://gurukula-trial-booking.vercel.app
+```
 
 ### Backend Deployment
 
 The Node.js and Express backend is deployed on Render.
 
-    https://elevora-api.onrender.com
+```text
+https://elevora-api.onrender.com
+```
 
 ### Database Deployment
 
@@ -417,37 +546,49 @@ MongoDB Atlas is used as the cloud database.
 
 The Vercel frontend uses:
 
-    VITE_API_URL=https://elevora-api.onrender.com
+```env
+VITE_API_URL=https://elevora-api.onrender.com
+```
 
 This allows the deployed frontend to communicate with the deployed backend.
 
 ### Production Architecture
 
-    Vercel
-    React + Vite
-         |
-         v
-    Render
-    Node.js + Express
-         |
-         v
-    MongoDB Atlas
+```text
+Vercel
+React + Vite
+     |
+     v
+Render
+Node.js + Express
+     |
+     v
+MongoDB Atlas
+```
+
+---
 
 ## Production Build
 
 ### Backend
 
-    cd server
-    npm run build
+```bash
+cd server
+npm run build
+```
 
 ### Frontend
 
-    cd client
-    npm run build
+```bash
+cd client
+npm run build
+```
 
 Both frontend and backend production builds were tested successfully before deployment.
 
 The frontend was then deployed to Vercel and the backend was deployed to Render.
+
+---
 
 ## Validation and Testing
 
@@ -476,15 +617,19 @@ The following functionality was tested during development and deployment:
 - Render backend deployment
 - Deployed frontend-to-backend API communication
 
-## Design Decisions
+---
 
-### Guest Booking
+# Design Decisions
+
+## Guest Booking
 
 Authentication was intentionally not added because the assessment focuses on the trial-class booking workflow.
 
 Guest booking reduces friction for a first-time parent.
 
-### Automatic Mentor Assignment
+---
+
+## Automatic Mentor Assignment
 
 Parents do not need to manually select a mentor.
 
@@ -497,23 +642,29 @@ The backend finds an eligible mentor based on:
 - Existing bookings
 - Active status
 
-### UTC Storage
+---
+
+## UTC Storage
 
 Booking timestamps are stored in UTC to provide a consistent source of truth while supporting users and mentors in different timezones.
 
-### IANA Timezones
+---
+
+## IANA Timezones
 
 The application uses IANA timezone identifiers instead of manually configured UTC offsets.
 
 Examples:
 
-- Asia/Kolkata
-- Europe/London
-- America/New_York
+- `Asia/Kolkata`
+- `Europe/London`
+- `America/New_York`
 
 This allows accurate timezone and DST handling.
 
-### Demo Classroom
+---
+
+## Demo Classroom
 
 A real video conferencing service was not required for the assessment.
 
@@ -521,205 +672,191 @@ Instead, the application provides a simulated demo classroom experience after bo
 
 This allows the complete customer journey to be demonstrated:
 
-    Booking
-       |
-       v
-    Confirmation
-       |
-       v
-    Demo Class
-       |
-       v
-    Leave Demo
-       |
-       v
-    Home Page
+```text
+Booking
+   |
+   v
+Confirmation
+   |
+   v
+Demo Class
+   |
+   v
+Leave Demo
+   |
+   v
+Home Page
+```
 
-### New-Tab Demo Experience
+---
+
+## New-Tab Demo Experience
 
 The demo classroom opens in a new browser tab to simulate the experience of joining an online class while keeping the original booking page available.
 
-### Footer Portfolio Access
+---
+
+## Footer Portfolio Access
 
 A **View Portfolio** button was added to the footer so evaluators and visitors can easily access the developer's portfolio without interrupting the main booking experience.
 
-## Current Limitations
+Portfolio:
 
-- The demo classroom is simulated rather than a real video-conferencing environment.
-- Meeting links are generated as demo links rather than real video-conference links.
-- Email notifications are not integrated.
-- Authentication and user accounts are not implemented.
-- Cancellation and rescheduling UI are not included.
-- Concurrent booking protection could be strengthened with transactional or atomic reservation logic.
-- Automated test coverage can be expanded.
+https://chethumalli-portfolio.vercel.app/
 
-## Future Improvements
+---
 
-- Real Google Meet integration
-- Real Zoom integration
-- Email confirmations
-- Parent accounts
-- Rescheduling and cancellation
-- Calendar integration
-- Admin dashboard
-- Mentor dashboard
-- Stronger concurrency control
-- Automated unit tests
-- Integration tests
-- End-to-end tests
-- Booking analytics
-- Notification system
-- Payment integration for paid classes
-- Real-time classroom functionality
-- Real-time mentor/student video communication
+# Booking Flow
 
-## Security Considerations
+```text
+Select Timezone
+       |
+       v
+Select Date
+       |
+       v
+View Available Slots
+       |
+       v
+Select Trial Slot
+       |
+       v
+Enter Parent Details
+       |
+       v
+Enter Student Details
+       |
+       v
+Validate Information
+       |
+       v
+Find Available Mentor
+       |
+       v
+Create Booking
+       |
+       v
+Store Booking in MongoDB
+       |
+       v
+Show Confirmation
+       |
+       v
+Try Demo Class
+       |
+       v
+Open Demo Classroom
+       |
+       v
+Leave Demo
+       |
+       v
+Return to Home Page
+```
 
-The application uses backend validation to prevent invalid booking requests.
+---
 
-Zod is used to validate incoming request data.
-
-Possible production improvements include:
-
-- Authentication
-- Authorization
-- Rate limiting
-- Secure HTTP headers
-- Input sanitization
-- Stronger booking transaction handling
-- Production secret management
-- Database access restrictions
-- API monitoring and logging
-
-## Booking Flow
-
-    Select Timezone
-          |
-          v
-    Select Date
-          |
-          v
-    View Available Slots
-          |
-          v
-    Select Trial Slot
-          |
-          v
-    Enter Parent Details
-          |
-          v
-    Enter Student Details
-          |
-          v
-    Validate Information
-          |
-          v
-    Find Available Mentor
-          |
-          v
-    Create Booking
-          |
-          v
-    Store Booking in MongoDB
-          |
-          v
-    Show Confirmation
-          |
-          v
-    Try Demo Class
-          |
-          v
-    Open Demo Classroom
-          |
-          v
-    Leave Demo
-          |
-          v
-    Return to Home Page
-
-## Timezone Conversion Example
+# Timezone Conversion Example
 
 Suppose a parent selects:
 
-    Date: September 27, 2026
-    Time: 10:00 AM
-    Timezone: Asia/Kolkata
+```text
+Date: September 27, 2026
+Time: 10:00 AM
+Timezone: Asia/Kolkata
+```
 
 The application converts the selected local time into UTC before storing it.
 
-    Parent Time
-    10:00 AM
-    Asia/Kolkata
-          |
-          v
-    UTC Conversion
-          |
-          v
-    04:30 AM UTC
-          |
-          v
-    MongoDB
+```text
+Parent Time
+10:00 AM
+Asia/Kolkata
+      |
+      v
+UTC Conversion
+      |
+      v
+04:30 AM UTC
+      |
+      v
+MongoDB
+```
 
 When checking mentor availability, the backend converts the UTC booking time into the mentor's local timezone.
 
 This allows mentors in different countries to be matched correctly.
 
-## Daylight Saving Time
+---
+
+# Daylight Saving Time
 
 The application uses IANA timezone identifiers such as:
 
-- Asia/Kolkata
-- Europe/London
-- America/New_York
+- `Asia/Kolkata`
+- `Europe/London`
+- `America/New_York`
 
 Luxon handles timezone offsets and DST transitions automatically.
 
 This avoids relying on fixed UTC offsets such as:
 
-    UTC+5:30
-    UTC+1
-    UTC-4
+```text
+UTC+5:30
+UTC+1
+UTC-4
+```
 
 because timezone offsets can change depending on the date.
 
-## Booking Conflict Prevention
+---
+
+# Booking Conflict Prevention
 
 Before creating a booking, the backend checks whether the selected mentor already has an overlapping confirmed booking.
 
-    Existing Booking
-          |
-          v
-    Check Time Overlap
-          |
-          +---- Overlap ----> Reject Booking
-          |
-          +---- No Overlap --> Continue
+```text
+Existing Booking
+       |
+       v
+Check Time Overlap
+       |
+       +---- Overlap ----> Reject Booking
+       |
+       +---- No Overlap --> Continue
+```
 
 This prevents two confirmed bookings from being assigned to the same mentor during the same time period.
 
-## Mentor Daily Capacity
+---
+
+# Mentor Daily Capacity
 
 Each mentor has a maximum number of bookings allowed per local calendar day.
 
 The backend calculates the mentor's local date from the UTC booking timestamp.
 
-    UTC Booking Time
-          |
-          v
-    Mentor Timezone
-          |
-          v
-    Mentor Local Date
-          |
-          v
-    Count Daily Bookings
-          |
-          v
-    Compare With Daily Limit
+```text
+UTC Booking Time
+       |
+       v
+Mentor Timezone
+       |
+       v
+Mentor Local Date
+       |
+       v
+Count Daily Bookings
+       |
+       v
+Compare With Daily Limit
+```
 
 If the mentor has reached the daily limit, that mentor is not considered available.
 
-## Automatic Mentor Assignment
+---
+
+# Automatic Mentor Assignment
 
 Parents do not need to manually select a mentor.
 
@@ -727,38 +864,44 @@ The backend automatically searches for an eligible mentor.
 
 The matching process considers:
 
-    Active Mentor
-          +
-    Working Hours
-          +
-    Working Days
-          +
-    Timezone
-          +
-    Daily Capacity
-          +
-    Existing Bookings
-          |
-          v
-    Eligible Mentor
+```text
+Active Mentor
+     +
+Working Hours
+     +
+Working Days
+     +
+Timezone
+     +
+Daily Capacity
+     +
+Existing Bookings
+     |
+     v
+Eligible Mentor
+```
 
-## API Architecture
+---
+
+# API Architecture
 
 The backend follows a layered architecture:
 
-    Routes
-      |
-      v
-    Controllers
-      |
-      v
-    Services
-      |
-      v
-    Models
-      |
-      v
-    MongoDB
+```text
+Routes
+  |
+  v
+Controllers
+  |
+  v
+Services
+  |
+  v
+Models
+  |
+  v
+MongoDB
+```
 
 ### Routes
 
@@ -790,135 +933,154 @@ Contains reusable helper functionality such as:
 - Timezone utilities
 - Validation helpers
 
-## Example Booking Request
+---
 
-    POST /api/bookings
+# Example Booking Request
 
-    Content-Type: application/json
+```http
+POST /api/bookings
+Content-Type: application/json
+```
 
-    {
-      "parentName": "Your Name",
-      "parentEmail": "parent@example.com",
-      "parentTimezone": "Asia/Kolkata",
-      "studentName": "Student Name",
-      "studentAge": 12,
-      "startTimeUTC": "2026-09-27T04:30:00.000Z",
-      "endTimeUTC": "2026-09-27T05:30:00.000Z"
-    }
+```json
+{
+  "parentName": "Your Name",
+  "parentEmail": "parent@example.com",
+  "parentTimezone": "Asia/Kolkata",
+  "studentName": "Student Name",
+  "studentAge": 12,
+  "startTimeUTC": "2026-09-27T04:30:00.000Z",
+  "endTimeUTC": "2026-09-27T05:30:00.000Z"
+}
+```
 
-## Example Availability Request
+---
 
-    GET /api/availability?date=2026-09-27&timezone=Asia%2FKolkata
+# Example Availability Request
+
+```http
+GET /api/availability?date=2026-09-27&timezone=Asia%2FKolkata
+```
 
 The API calculates available trial slots according to the selected date and timezone.
 
-## Application Workflow
+---
 
-                          ┌─────────────────────┐
-                          │   Parent Opens App  │
-                          └──────────┬──────────┘
-                                     |
-                                     v
-                          ┌─────────────────────┐
-                          │ Select Timezone     │
-                          └──────────┬──────────┘
-                                     |
-                                     v
-                          ┌─────────────────────┐
-                          │ Select Date         │
-                          └──────────┬──────────┘
-                                     |
-                                     v
-                          ┌─────────────────────┐
-                          │ Get Availability    │
-                          └──────────┬──────────┘
-                                     |
-                                     v
-                          ┌─────────────────────┐
-                          │ Select Trial Slot   │
-                          └──────────┬──────────┘
-                                     |
-                                     v
-                          ┌─────────────────────┐
-                          │ Parent + Student    │
-                          │ Details             │
-                          └──────────┬──────────┘
-                                     |
-                                     v
-                          ┌─────────────────────┐
-                          │ Backend Validation  │
-                          └──────────┬──────────┘
-                                     |
-                                     v
-                          ┌─────────────────────┐
-                          │ Find Mentor         │
-                          └──────────┬──────────┘
-                                     |
-                                     v
-                          ┌─────────────────────┐
-                          │ Create Booking      │
-                          └──────────┬──────────┘
-                                     |
-                                     v
-                          ┌─────────────────────┐
-                          │ MongoDB Atlas       │
-                          └──────────┬──────────┘
-                                     |
-                                     v
-                          ┌─────────────────────┐
-                          │ Booking Confirmation │
-                          │ + Demo Class Link   │
-                          └──────────┬──────────┘
-                                     |
-                                     v
-                          ┌─────────────────────┐
-                          │ Try Demo Class      │
-                          └──────────┬──────────┘
-                                     |
-                                     v
-                          ┌─────────────────────┐
-                          │ Demo Classroom      │
-                          └──────────┬──────────┘
-                                     |
-                                     v
-                          ┌─────────────────────┐
-                          │ Leave Demo          │
-                          └──────────┬──────────┘
-                                     |
-                                     v
-                          ┌─────────────────────┐
-                          │ Gurukula Home Page  │
-                          └─────────────────────┘
+# Application Workflow
 
-## Demo Classroom Workflow
+```text
+┌─────────────────────────┐
+│     Parent Opens App    │
+└────────────┬────────────┘
+             |
+             v
+┌─────────────────────────┐
+│     Select Timezone     │
+└────────────┬────────────┘
+             |
+             v
+┌─────────────────────────┐
+│       Select Date       │
+└────────────┬────────────┘
+             |
+             v
+┌─────────────────────────┐
+│    Get Availability     │
+└────────────┬────────────┘
+             |
+             v
+┌─────────────────────────┐
+│    Select Trial Slot    │
+└────────────┬────────────┘
+             |
+             v
+┌─────────────────────────┐
+│   Parent + Student      │
+│        Details          │
+└────────────┬────────────┘
+             |
+             v
+┌─────────────────────────┐
+│   Backend Validation    │
+└────────────┬────────────┘
+             |
+             v
+┌─────────────────────────┐
+│      Find Mentor        │
+└────────────┬────────────┘
+             |
+             v
+┌─────────────────────────┐
+│     Create Booking      │
+└────────────┬────────────┘
+             |
+             v
+┌─────────────────────────┐
+│      MongoDB Atlas      │
+└────────────┬────────────┘
+             |
+             v
+┌─────────────────────────┐
+│ Booking Confirmation    │
+│   + Demo Class Link     │
+└────────────┬────────────┘
+             |
+             v
+┌─────────────────────────┐
+│     Try Demo Class      │
+└────────────┬────────────┘
+             |
+             v
+┌─────────────────────────┐
+│    Demo Classroom       │
+└────────────┬────────────┘
+             |
+             v
+┌─────────────────────────┐
+│       Leave Demo        │
+└────────────┬────────────┘
+             |
+             v
+┌─────────────────────────┐
+│    Gurukula Home Page   │
+└─────────────────────────┘
+```
+
+---
+
+# Demo Classroom Workflow
 
 The demo classroom is available through the booking confirmation after a successful trial booking.
 
 The flow is:
 
-    Booking Confirmation
-          |
-          v
-    Try Demo Class
-          |
-          v
-    Open Demo
-          |
-          v
-    Demo Classroom
-          |
-          v
-    Start Demo Class
-          |
-          v
-    Leave Demo
-          |
-          v
-    Return to /
+```text
+Booking Confirmation
+       |
+       v
+Try Demo Class
+       |
+       v
+Open Demo
+       |
+       v
+Demo Classroom
+       |
+       v
+Start Demo Class
+       |
+       v
+Leave Demo
+       |
+       v
+Return to /
+```
 
 The demo classroom is implemented inside the frontend application and uses the booking information stored in browser local storage.
 
-## Demo Classroom Information
+---
+
+# Demo Classroom Information
 
 The demo classroom can display information related to the confirmed booking, including:
 
@@ -934,7 +1096,9 @@ The demo classroom can display information related to the confirmed booking, inc
 
 The classroom is intended to simulate the user experience of joining an online trial class without requiring an external video conferencing provider.
 
-## Customer Experience
+---
+
+# Customer Experience
 
 The application is designed around a simple parent-first booking experience.
 
@@ -955,29 +1119,93 @@ The intended customer journey is:
 13. The parent can leave the demo and return to the Gurukula home page.
 14. The parent can use the View Portfolio button in the footer to visit the developer portfolio.
 
-## Project Branding
+---
 
-### Gurukula
+# Current Limitations
 
-Personalized learning. Real progress.
+- The demo classroom is simulated rather than a real video-conferencing environment.
+- Meeting links are generated as demo links rather than real video-conference links.
+- Email notifications are not integrated.
+- Authentication and user accounts are not implemented.
+- Cancellation and rescheduling UI are not included.
+- Concurrent booking protection could be strengthened with transactional or atomic reservation logic.
+- Automated test coverage can be expanded.
+
+---
+
+# Future Improvements
+
+- Real Google Meet integration
+- Real Zoom integration
+- Email confirmations
+- Parent accounts
+- Rescheduling and cancellation
+- Calendar integration
+- Admin dashboard
+- Mentor dashboard
+- Stronger concurrency control
+- Automated unit tests
+- Integration tests
+- End-to-end tests
+- Booking analytics
+- Notification system
+- Payment integration for paid classes
+- Real-time classroom functionality
+- Real-time mentor/student video communication
+
+---
+
+# Security Considerations
+
+The application uses backend validation to prevent invalid booking requests.
+
+Zod is used to validate incoming request data.
+
+Possible production improvements include:
+
+- Authentication
+- Authorization
+- Rate limiting
+- Secure HTTP headers
+- Input sanitization
+- Stronger booking transaction handling
+- Production secret management
+- Database access restrictions
+- API monitoring and logging
+
+---
+
+# Project Branding
+
+## Gurukula
+
+**Personalized learning. Real progress.**
 
 © 2026 Gurukula · Assessment project for CodeYoung
 
-Developed by Chethan C. Malli
+Developed by **Chethan C. Malli**
 
 The footer also includes a **View Portfolio** button.
 
-## Author
+---
+
+# Author
 
 Developed by **Chethan C. Malli**
 
 AI/ML Enthusiast | Full-Stack Developer
 
-GitHub: https://github.com/Chethumalli
+GitHub:
 
-Portfolio: https://chethumalli-portfolio.vercel.app/
+https://github.com/Chethumalli
 
-## Assessment
+Portfolio:
+
+https://chethumalli-portfolio.vercel.app/
+
+---
+
+# Assessment
 
 This project was developed as a full-stack assessment project for **CodeYoung**.
 
@@ -1006,7 +1234,9 @@ The project demonstrates:
 - Render deployment
 - MongoDB Atlas integration
 
-## License
+---
+
+# License
 
 This project was developed for assessment and demonstration purposes.
 
