@@ -343,6 +343,7 @@ function Icon({
 function DemoClassPage() {
   const [booking, setBooking] = useState<DemoBooking | null>(null);
   const [stage, setStage] = useState<"welcome" | "class" | "feedback" | "done">("welcome");
+  const [feedbackMode, setFeedbackMode] = useState<"finish" | "leave">("finish");
   const [micOn, setMicOn] = useState(true);
   const [cameraOn, setCameraOn] = useState(true);
   const [speakerOn, setSpeakerOn] = useState(true);
@@ -531,7 +532,7 @@ function DemoClassPage() {
     }
   };
 
-  const leaveClass = () => {
+  const stopMediaDevices = () => {
     if (mediaStreamRef.current) {
       mediaStreamRef.current.getTracks().forEach((track) => track.stop());
       mediaStreamRef.current = null;
@@ -541,6 +542,22 @@ function DemoClassPage() {
       videoRef.current.srcObject = null;
     }
 
+    setMediaConnected(false);
+  };
+
+  const finishClass = () => {
+    stopMediaDevices();
+    setFeedbackMode("finish");
+    setStage("feedback");
+  };
+
+  const leaveClass = () => {
+    stopMediaDevices();
+    setFeedbackMode("leave");
+    setStage("feedback");
+  };
+
+  const skipLeaveFeedback = () => {
     window.location.href = "/";
   };
 
@@ -627,15 +644,29 @@ function DemoClassPage() {
                 <div className="text-[11px] text-slate-400">Trial feedback</div>
               </div>
             </div>
-            <div className="rounded-full bg-emerald-50 px-4 py-2 text-xs font-bold text-emerald-700">Class completed</div>
+            <div className={`rounded-full px-4 py-2 text-xs font-bold ${
+              feedbackMode === "finish"
+                ? "bg-emerald-50 text-emerald-700"
+                : "bg-amber-50 text-amber-700"
+            }`}>
+              {feedbackMode === "finish" ? "Class completed" : "Class ended"}
+            </div>
           </div>
         </header>
 
         <main className="mx-auto max-w-3xl px-5 py-10 lg:px-8">
           <section className="rounded-[32px] border border-slate-300 bg-white p-7 shadow-sm sm:p-10">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-500">Final step</p>
-            <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">How was your trial class?</h1>
-            <p className="mt-3 text-sm leading-6 text-slate-500">Your feedback helps us create a better learning experience.</p>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-500">
+              {feedbackMode === "finish" ? "Class complete" : "Quick feedback"}
+            </p>
+            <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
+              {feedbackMode === "finish" ? "How was your trial class?" : "How was your experience?"}
+            </h1>
+            <p className="mt-3 text-sm leading-6 text-slate-500">
+              {feedbackMode === "finish"
+                ? "Your feedback helps us create a better learning experience."
+                : "We'd love to hear a quick thought about your experience. This feedback is optional."}
+            </p>
 
             <div className="mt-8">
               <p className="text-sm font-bold">Rate your experience</p>
@@ -655,12 +686,18 @@ function DemoClassPage() {
             </div>
 
             <div className="mt-7">
-              <label className="text-sm font-bold">What did you enjoy?</label>
+              <label className="text-sm font-bold">
+                {feedbackMode === "finish" ? "What did you enjoy?" : "Optional comment"}
+              </label>
               <textarea
                 value={feedback}
                 onChange={(event) => setFeedback(event.target.value)}
                 rows={5}
-                placeholder="Tell us about the mentor, class or activity..."
+                placeholder={
+                  feedbackMode === "finish"
+                    ? "Tell us about the mentor, class or activity..."
+                    : "Tell us what you think..."
+                }
                 className="mt-2 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-4 text-sm outline-none transition focus:border-slate-950 focus:bg-white focus:ring-4 focus:ring-slate-100"
               />
             </div>
@@ -677,12 +714,22 @@ function DemoClassPage() {
             </div>
 
             <button
-              disabled={!rating}
+              disabled={feedbackMode === "finish" && !rating}
               onClick={submitFeedback}
               className="mt-7 flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-6 py-4 text-sm font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              Submit feedback <Icon name="arrow" size={17} />
+              {feedbackMode === "finish" ? "Submit feedback" : "Submit & leave"} <Icon name="arrow" size={17} />
             </button>
+
+            {feedbackMode === "leave" && (
+              <button
+                type="button"
+                onClick={skipLeaveFeedback}
+                className="mt-3 flex w-full items-center justify-center rounded-2xl border border-slate-300 bg-white px-6 py-4 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
+              >
+                Skip & leave class
+              </button>
+            )}
           </section>
         </main>
       </div>
@@ -915,7 +962,7 @@ function DemoClassPage() {
                 </button>
 
                 <button
-                  onClick={() => setStage("feedback")}
+                  onClick={finishClass}
                   className="rounded-xl bg-emerald-500 px-4 py-2.5 text-xs font-bold text-slate-950 transition hover:bg-emerald-400"
                 >
                   Finish class
@@ -925,7 +972,7 @@ function DemoClassPage() {
                   onClick={leaveClass}
                   className="rounded-xl bg-red-500/15 px-4 py-2.5 text-xs font-bold text-red-300 transition hover:bg-red-500/25"
                 >
-                  Leave demo
+                  Leave class
                 </button>
               </div>
             </section>
@@ -2929,17 +2976,32 @@ function BookingPage() {
 
               <p className="text-xs font-semibold text-slate-300">
                 Developed by{" "}
-                <span className="text-white">Chethan C. Malli</span>
+                <a
+                  href="https://chethumalli-portfolio.vercel.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Open Chethan C. Malli's portfolio"
+                  className="ml-1 inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900 px-3.5 py-2 text-xs font-semibold text-slate-200 transition hover:border-indigo-500 hover:bg-indigo-600 hover:text-white"
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <rect x="3" y="7" width="18" height="13" rx="2" />
+                    <path d="M8 7V5.5A2.5 2.5 0 0 1 10.5 3h3A2.5 2.5 0 0 1 16 5.5V7" />
+                    <path d="M3 12h18" />
+                    <path d="M10 12v2h4v-2" />
+                  </svg>
+                  <span>Chethan C. Malli</span>
+                </a>
               </p>
-
-              <a
-                href="https://chethumalli-portfolio.vercel.app/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center rounded-full border border-slate-700 bg-slate-900 px-4 py-2 text-xs font-semibold text-slate-200 transition hover:border-indigo-500 hover:bg-indigo-600 hover:text-white"
-              >
-                View Portfolio →
-              </a>
             </div>
 
           </div>
