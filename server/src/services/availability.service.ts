@@ -28,9 +28,46 @@ export const getAvailableSlots = async (
     throw new Error("Invalid date or timezone");
   }
 
+  // Get active mentors once
   const mentors = await Mentor.find({
     isActive: true,
-  });
+  }).lean();
+
+  if (mentors.length === 0) {
+    return [];
+  }
+
+  /*
+   * Fetch bookings once instead of querying MongoDB
+   * separately for every mentor and every time slot.
+   *
+   * We fetch a wide UTC range around the selected date
+   * because mentors can be in different timezones.
+   */
+  const selectedDayStart = parentDate.startOf("day");
+  const selectedDayEnd = parentDate.endOf("day");
+
+  const rangeStartUTC = selectedDayStart
+    .minus({ days: 1 })
+    .toUTC()
+    .toJSDate();
+
+  const rangeEndUTC = selectedDayEnd
+    .plus({ days: 1 })
+    .toUTC()
+    .toJSDate();
+
+  const bookings = await Booking.find({
+    status: "confirmed",
+    startTimeUTC: {
+      $lt: rangeEndUTC,
+    },
+    endTimeUTC: {
+      $gt: rangeStartUTC,
+    },
+  })
+    .select("mentorId startTimeUTC endTimeUTC")
+    .lean();
 
   const slots: AvailabilitySlot[] = [];
 
@@ -74,14 +111,15 @@ export const getAvailableSlots = async (
       const workingStart = START_HOUR * 60;
       const workingEnd = END_HOUR * 60;
 
+      // Skip if the mentor is outside working hours
       if (
-  startMinutes < workingStart ||
-  startMinutes >= workingEnd ||
-  endMinutes > workingEnd ||
-  mentorEnd.toISODate() !== mentorStart.toISODate()
-) {
-  continue;
-}
+        startMinutes < workingStart ||
+        startMinutes >= workingEnd ||
+        endMinutes > workingEnd ||
+        mentorEnd.toISODate() !== mentorStart.toISODate()
+      ) {
+        continue;
+      }
 
       const mentorLocalDate = mentorStart.toISODate();
 
@@ -89,6 +127,9 @@ export const getAvailableSlots = async (
         continue;
       }
 
+      /*
+       * Count this mentor's bookings for their local day.
+       */
       const dayStartUTC = mentorStart
         .startOf("day")
         .toUTC()
@@ -99,32 +140,35 @@ export const getAvailableSlots = async (
         .toUTC()
         .toJSDate();
 
-      const bookingCount = await Booking.countDocuments({
-        mentorId: mentor._id,
-        startTimeUTC: {
-          $gte: dayStartUTC,
-          $lte: dayEndUTC,
-        },
-        status: "confirmed",
-      });
+      const mentorBookings = bookings.filter(
+        (booking) =>
+          String(booking.mentorId) ===
+            String(mentor._id) &&
+          booking.startTimeUTC >= dayStartUTC &&
+          booking.startTimeUTC <= dayEndUTC
+      );
 
-      if (bookingCount >= mentor.maxDailyBookings) {
+      // Respect mentor's maximum daily booking limit
+      if (
+        mentorBookings.length >=
+        mentor.maxDailyBookings
+      ) {
         continue;
       }
 
-      const overlappingBooking =
-        await Booking.findOne({
-          mentorId: mentor._id,
-          status: "confirmed",
-          startTimeUTC: {
-            $lt: endUTC.toJSDate(),
-          },
-          endTimeUTC: {
-            $gt: startUTC.toJSDate(),
-          },
-        });
+      /*
+       * Check whether this mentor already has a
+       * confirmed booking overlapping this slot.
+       */
+      const hasOverlap = mentorBookings.some(
+        (booking) =>
+          booking.startTimeUTC <
+            endUTC.toJSDate() &&
+          booking.endTimeUTC >
+            startUTC.toJSDate()
+      );
 
-      if (overlappingBooking) {
+      if (hasOverlap) {
         continue;
       }
 
