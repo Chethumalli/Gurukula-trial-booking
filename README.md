@@ -1,5 +1,3 @@
-# README.md
-
 # Gurukula — Trial Class Booking Platform
 
 Gurukula is a timezone-aware trial class booking platform built as a full-stack assessment project for CodeYoung.
@@ -65,15 +63,13 @@ The project is deployed and publicly accessible.
 
 ### Frontend
 
-Vercel:
-
-https://Gurukula-trial-booking.vercel.app
+The frontend is deployed on Vercel using the existing project deployment.
 
 ### Backend API
 
 Render:
 
-https://Gurukula-api.onrender.com
+https://elevora-api.onrender.com
 
 ### Database
 
@@ -98,7 +94,7 @@ The deployed frontend communicates with the deployed backend using the `VITE_API
 
 Production configuration:
 
-    VITE_API_URL=https://Gurukula-api.onrender.com
+    VITE_API_URL=https://elevora-api.onrender.com
 
 ## Architecture
 
@@ -294,7 +290,7 @@ Request body:
 
 ## Project Structure
 
-    Gurukula-trial-booking/
+    elevora-trial-booking/
     │
     ├── client/
     │   ├── public/
@@ -336,8 +332,8 @@ Make sure the following are installed:
 
 ### 1. Clone the Repository
 
-    git clone https://github.com/Chethumalli/Gurukula-trial-booking.git
-    cd Gurukula-trial-booking
+    git clone https://github.com/Chethumalli/elevora-trial-booking.git
+    cd elevora-trial-booking
 
 ### 2. Install Frontend Dependencies
 
@@ -366,7 +362,7 @@ Create a MongoDB database using MongoDB Atlas or a local MongoDB instance.
 
 Example MongoDB connection string:
 
-    MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/Gurukula
+    MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/your_database_name
 
 Replace the username, password, cluster URL, and database name with your own values.
 
@@ -405,15 +401,13 @@ The application is deployed using Vercel, Render, and MongoDB Atlas.
 
 ### Frontend Deployment
 
-The React frontend is deployed on Vercel.
-
-    https://Gurukula-trial-booking.vercel.app
+The React frontend is deployed on Vercel using the existing Vercel project deployment.
 
 ### Backend Deployment
 
 The Node.js and Express backend is deployed on Render.
 
-    https://Gurukula-api.onrender.com
+    https://elevora-api.onrender.com
 
 ### Database Deployment
 
@@ -423,7 +417,7 @@ MongoDB Atlas is used as the cloud database.
 
 The Vercel frontend uses:
 
-    VITE_API_URL=https://Gurukula-api.onrender.com
+    VITE_API_URL=https://elevora-api.onrender.com
 
 This allows the deployed frontend to communicate with the deployed backend.
 
@@ -444,13 +438,11 @@ This allows the deployed frontend to communicate with the deployed backend.
 ### Backend
 
     cd server
-
     npm run build
 
 ### Frontend
 
     cd client
-
     npm run build
 
 Both frontend and backend production builds were tested successfully before deployment.
@@ -874,7 +866,7 @@ The API calculates available trial slots according to the selected date and time
                                      |
                                      v
                           ┌─────────────────────┐
-                          │ Booking Confirmation│
+                          │ Booking Confirmation │
                           │ + Demo Class Link   │
                           └──────────┬──────────┘
                                      |
@@ -895,7 +887,7 @@ The API calculates available trial slots according to the selected date and time
                                      |
                                      v
                           ┌─────────────────────┐
-                          │ Gurukula Home Page   │
+                          │ Gurukula Home Page  │
                           └─────────────────────┘
 
 ## Demo Classroom Workflow
