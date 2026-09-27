@@ -403,7 +403,7 @@ function DemoClassPage() {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-300 bg-white px-5 py-4 shadow-sm">
+          <div className="rounded-2xl border border-slate-400 bg-white px-5 py-4 shadow-sm">
             <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
               Scheduled for
             </p>
@@ -489,7 +489,7 @@ function DemoClassPage() {
           </section>
 
           <aside className="space-y-5">
-            <div className="rounded-[28px] border border-slate-300 bg-white p-6 shadow-sm">
+            <div className="rounded-[28px] border border-slate-400 bg-white p-6 shadow-sm">
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
                 Student
               </p>
@@ -854,7 +854,7 @@ function BookingPage() {
 
           <button
             onClick={() => setShowMentors(true)}
-            className="rounded-full border border-slate-300 bg-white px-4 py-2 text-xs font-bold text-slate-700 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
+            className="rounded-full border border-slate-400 bg-white px-4 py-2 text-xs font-bold text-slate-700 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
           >
             Meet our mentors
           </button>
@@ -1080,7 +1080,7 @@ function BookingPage() {
                   </div>
                 )}
 
-                <div className="mt-6 rounded-2xl border border-slate-300 p-5">
+                <div className="mt-6 rounded-2xl border border-slate-400 p-5">
 
                   <div className="flex items-center justify-between">
 
@@ -1125,7 +1125,7 @@ function BookingPage() {
           <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
 
             {/* LEFT */}
-            <section className="rounded-[28px] border border-slate-300 bg-white p-6 shadow-sm sm:p-8">
+            <section className="rounded-[28px] border border-slate-400 bg-white p-6 shadow-sm sm:p-8">
 
               {/* STEP 1 */}
               {currentStep === 1 && (
@@ -1205,7 +1205,7 @@ function BookingPage() {
                       onChange={(event) =>
                         changeTimezone(event.target.value)
                       }
-                      className="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-4 text-sm font-medium outline-none transition focus:border-slate-950 focus:bg-white focus:ring-4 focus:ring-slate-100"
+                      className="w-full rounded-2xl border border-slate-400 bg-slate-50 px-4 py-4 text-sm font-medium outline-none transition focus:border-slate-950 focus:bg-white focus:ring-4 focus:ring-slate-100"
                     >
                       {timezones.map((item) => (
                         <option
@@ -1241,7 +1241,7 @@ function BookingPage() {
                         onChange={(event) =>
                           changeDate(event.target.value)
                         }
-                        className="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-4 text-sm font-medium outline-none transition focus:border-slate-950 focus:bg-white focus:ring-4 focus:ring-slate-100"
+                        className="w-full rounded-2xl border border-slate-400 bg-slate-50 px-4 py-4 text-sm font-medium outline-none transition focus:border-slate-950 focus:bg-white focus:ring-4 focus:ring-slate-100"
                       />
 
                     </div>
@@ -1310,7 +1310,7 @@ function BookingPage() {
 
                     <div className="mt-7">
 
-                      <div className="flex flex-col gap-4 rounded-2xl border border-slate-300 bg-slate-50 p-5 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="flex flex-col gap-4 rounded-2xl border border-slate-400 bg-slate-50 p-5 sm:flex-row sm:items-center sm:justify-between">
 
                         <div className="flex items-center gap-3">
 
@@ -1432,7 +1432,7 @@ function BookingPage() {
 
                       {selectedSlot && (
 
-                        <div className="mt-7 rounded-2xl border border-slate-300 bg-white p-5 shadow-sm">
+                        <div className="mt-7 rounded-2xl border border-slate-400 bg-white p-5 shadow-sm">
 
                           <div className="flex items-start justify-between gap-4">
 
@@ -1521,7 +1521,7 @@ function BookingPage() {
 
                       <button
                         onClick={() => setCurrentStep(1)}
-                        className="mt-5 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-100"
+                        className="mt-5 rounded-xl border border-slate-400 bg-white px-5 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-100"
                       >
                         Change date
                       </button>
@@ -1608,7 +1608,7 @@ function BookingPage() {
                           setParentName(event.target.value)
                         }
                         placeholder="e.g. Your Name"
-                        className="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-4 text-sm outline-none transition placeholder:text-slate-400 focus:border-slate-950 focus:bg-white focus:ring-4 focus:ring-slate-100"
+                        className="w-full rounded-2xl border border-slate-400 bg-slate-50 px-4 py-4 text-sm outline-none transition placeholder:text-slate-400 focus:border-slate-950 focus:bg-white focus:ring-4 focus:ring-slate-100"
                       />
                     </div>
 
@@ -1625,7 +1625,7 @@ function BookingPage() {
                           setParentEmail(event.target.value)
                         }
                         placeholder="you@example.com"
-                        className="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-4 text-sm outline-none transition placeholder:text-slate-400 focus:border-slate-950 focus:bg-white focus:ring-4 focus:ring-slate-100"
+                        className="w-full rounded-2xl border border-slate-400 bg-slate-50 px-4 py-4 text-sm outline-none transition placeholder:text-slate-400 focus:border-slate-950 focus:bg-white focus:ring-4 focus:ring-slate-100"
                       />
                     </div>
 
@@ -1641,7 +1641,7 @@ function BookingPage() {
                           setStudentName(event.target.value)
                         }
                         placeholder="e.g. Student Name"
-                        className="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-4 text-sm outline-none transition placeholder:text-slate-400 focus:border-slate-950 focus:bg-white focus:ring-4 focus:ring-slate-100"
+                        className="w-full rounded-2xl border border-slate-400 bg-slate-50 px-4 py-4 text-sm outline-none transition placeholder:text-slate-400 focus:border-slate-950 focus:bg-white focus:ring-4 focus:ring-slate-100"
                       />
                     </div>
 
@@ -1656,7 +1656,7 @@ function BookingPage() {
                         onChange={(event) =>
                           setStudentAge(event.target.value)
                         }
-                        className="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-4 text-sm font-medium outline-none transition focus:border-slate-950 focus:bg-white focus:ring-4 focus:ring-slate-100"
+                        className="w-full rounded-2xl border border-slate-400 bg-slate-50 px-4 py-4 text-sm font-medium outline-none transition focus:border-slate-950 focus:bg-white focus:ring-4 focus:ring-slate-100"
                       >
                         <option value="">
                           Select age
@@ -1676,7 +1676,7 @@ function BookingPage() {
                   </div>
 
 
-                  <div className="mt-6 rounded-2xl border border-slate-300 bg-slate-50 p-5">
+                  <div className="mt-6 rounded-2xl border border-slate-400 bg-slate-50 p-5">
 
                     <div className="flex gap-3">
 
@@ -1738,7 +1738,7 @@ function BookingPage() {
                   </p>
 
 
-                  <div className="mt-7 overflow-hidden rounded-3xl border border-slate-300">
+                  <div className="mt-7 overflow-hidden rounded-3xl border border-slate-400">
 
                     <div className="bg-slate-950 p-6 text-white">
 
@@ -1890,7 +1890,7 @@ function BookingPage() {
                       <button
                         onClick={() => setCurrentStep(3)}
                         disabled={booking}
-                        className="w-full rounded-2xl border border-slate-300 bg-white px-6 py-3.5 text-sm font-bold text-slate-600 transition hover:bg-slate-50"
+                        className="w-full rounded-2xl border border-slate-400 bg-white px-6 py-3.5 text-sm font-bold text-slate-600 transition hover:bg-slate-50"
                       >
                         ← Edit details
                       </button>
@@ -1915,7 +1915,7 @@ function BookingPage() {
             {/* RIGHT SIDE */}
             <aside className="space-y-5">
 
-              <div className="rounded-[28px] border border-slate-300 bg-white p-6 shadow-sm">
+              <div className="rounded-[28px] border border-slate-400 bg-white p-6 shadow-sm">
 
                 <div className="flex items-center justify-between">
 
@@ -2012,7 +2012,7 @@ function BookingPage() {
 
               <div className="grid grid-cols-2 gap-4">
 
-                <div className="rounded-2xl border border-slate-300 bg-white p-5">
+                <div className="rounded-2xl border border-slate-400 bg-white p-5">
 
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
                     <Icon name="users" size={18} />
@@ -2028,7 +2028,7 @@ function BookingPage() {
 
                 </div>
 
-                <div className="rounded-2xl border border-slate-300 bg-white p-5">
+                <div className="rounded-2xl border border-slate-400 bg-white p-5">
 
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
                     <Icon name="clock" size={18} />
@@ -2078,7 +2078,7 @@ function BookingPage() {
               </button>
 
 
-              <div className="rounded-[28px] border border-slate-300 bg-white p-6">
+              <div className="rounded-[28px] border border-slate-400 bg-white p-6">
 
                 <div className="flex gap-3">
 
@@ -2113,7 +2113,7 @@ function BookingPage() {
         {!meetingLink && (
           <section className="mt-10 grid gap-4 sm:grid-cols-3">
 
-            <div className="rounded-2xl border border-slate-300 bg-white p-5">
+            <div className="rounded-2xl border border-slate-400 bg-white p-5">
 
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
                 <Icon name="globe" size={19} />
@@ -2131,7 +2131,7 @@ function BookingPage() {
             </div>
 
 
-            <div className="rounded-2xl border border-slate-300 bg-white p-5">
+            <div className="rounded-2xl border border-slate-400 bg-white p-5">
 
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
                 <Icon name="users" size={19} />
@@ -2149,7 +2149,7 @@ function BookingPage() {
             </div>
 
 
-            <div className="rounded-2xl border border-slate-300 bg-white p-5">
+            <div className="rounded-2xl border border-slate-400 bg-white p-5">
 
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
                 <Icon name="clock" size={19} />
@@ -2220,7 +2220,7 @@ function BookingPage() {
                     className={`whitespace-nowrap rounded-full px-4 py-2 text-xs font-bold transition ${
                       mentorFilter === filter
                         ? "bg-slate-950 text-white"
-                        : "border border-slate-300 bg-white text-slate-500 hover:border-slate-400 hover:text-slate-900"
+                        : "border border-slate-400 bg-white text-slate-500 hover:border-slate-400 hover:text-slate-900"
                     }`}
                   >
                     {filter}
@@ -2241,7 +2241,7 @@ function BookingPage() {
 
                   <div
                     key={mentor.name}
-                    className="rounded-2xl border border-slate-300 bg-white p-5 transition hover:border-slate-300 hover:shadow-md"
+                    className="rounded-2xl border border-slate-400 bg-white p-5 transition hover:border-slate-300 hover:shadow-md"
                   >
 
                     <div className="flex items-start gap-4">
@@ -2341,7 +2341,7 @@ function BookingPage() {
 
                         <span
                           key={specialty}
-                          className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-[11px] font-semibold text-slate-600"
+                          className="rounded-full border border-slate-400 bg-white px-3 py-1.5 text-[11px] font-semibold text-slate-600"
                         >
                           {specialty}
                         </span>
