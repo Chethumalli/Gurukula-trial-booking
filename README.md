@@ -2,7 +2,7 @@
 
 Elevora is a timezone-aware trial class booking platform built as a full-stack assessment project for CodeYoung.
 
-The application allows parents to select their timezone, choose a preferred date and available trial slot, enter parent and student details, and receive a confirmed trial booking with a meeting link.
+The application allows parents to select their timezone, choose a preferred date and available trial slot, enter parent and student details, receive a confirmed trial booking, and enter a demo classroom experience through the generated demo class link.
 
 ## Features
 
@@ -17,11 +17,18 @@ The application allows parents to select their timezone, choose a preferred date
 - Student age validation from 6 to 17
 - Automatic mentor assignment
 - MongoDB persistence
-- Booking confirmation with meeting link
+- Booking confirmation with demo class link
+- Demo classroom experience after successful booking
+- Demo class opens in a new browser tab
+- Demo classroom displays booking and student information
+- Leave Demo button to return to the Elevora home page
 - Mentor directory with profiles
+- Mentor category filtering
 - IANA timezone and DST support
 - Backend request validation using Zod
 - REST API architecture
+- Local booking data persistence for the demo classroom
+- Responsive UI for booking and demo classroom screens
 
 ## Tech Stack
 
@@ -49,10 +56,10 @@ The project follows a simple layered architecture.
     React Frontend
           |
           v
-      REST API
+       REST API
           |
           v
-     Controllers
+      Controllers
           |
           v
        Services
@@ -73,7 +80,52 @@ The React application handles:
 - Availability display
 - Parent and student details
 - Booking confirmation
+- Demo classroom
 - Mentor directory
+- Mentor category filtering
+- Demo class navigation
+- Returning to the booking home page
+
+The frontend is implemented as a single-page React application with conditional rendering for the main booking experience and the demo classroom experience.
+
+## Demo Class Experience
+
+After a successful booking, the confirmation screen provides a **Try Demo Class** option.
+
+When the user opens the demo class:
+
+1. The booking information is saved locally for the demo experience.
+2. The demo class opens in a new browser tab.
+3. The demo classroom displays the student's booking information.
+4. The user can enter the simulated demo classroom.
+5. The user can leave the demo at any time.
+6. Clicking **Leave Demo** returns the user to the Elevora home page.
+
+The demo classroom is intentionally simulated because the assessment allows a dummy class/meeting link.
+
+### Demo Class Flow
+
+    Booking Confirmed
+          |
+          v
+    Try Demo Class
+          |
+          v
+    New Browser Tab
+          |
+          v
+    Demo Classroom
+          |
+          v
+    Start Demo Class
+          |
+          v
+    Leave Demo
+          |
+          v
+    Elevora Home Page
+
+The demo booking information is stored in browser local storage so that it remains available when the classroom is opened in a new tab or refreshed.
 
 ## Backend
 
@@ -86,6 +138,7 @@ The Express API handles:
 - Booking conflict detection
 - Daily mentor capacity
 - MongoDB persistence
+- Demo meeting link generation
 
 ## Timezone Handling
 
@@ -124,6 +177,8 @@ Mentors have:
 - Email
 - Timezone
 - Active/inactive status
+- Working hours
+- Working days
 - Maximum daily bookings
 
 A mentor is considered available when:
@@ -147,6 +202,8 @@ A mentor is considered available when:
 Example:
 
     /api/availability?date=2026-09-27&timezone=Asia%2FKolkata
+
+The availability endpoint calculates available 60-minute trial slots according to the selected parent date and timezone.
 
 ### Create Booking
 
@@ -285,6 +342,12 @@ Frontend:
 
 Both builds have been tested successfully.
 
+For production deployment, the frontend API URL should point to the deployed backend instead of the local development server.
+
+Example:
+
+    VITE_API_URL=https://your-backend-url.com
+
 ## Validation and Testing
 
 The following functionality was tested during development:
@@ -300,6 +363,11 @@ The following functionality was tested during development:
 - Student age validation
 - Student detail persistence
 - End-to-end booking flow
+- Booking confirmation
+- Demo class opening
+- Demo class opening in a new browser tab
+- Demo classroom data persistence using local storage
+- Leave Demo navigation back to the home page
 - Frontend production build
 - Backend TypeScript build
 
@@ -319,6 +387,7 @@ The backend finds an eligible mentor based on:
 
 - Timezone
 - Working hours
+- Working days
 - Daily capacity
 - Existing bookings
 - Active status
@@ -339,8 +408,31 @@ Examples:
 
 This allows accurate timezone and DST handling.
 
+### Demo Classroom
+
+A real video conferencing service was not required for the assessment.
+
+Instead, the application provides a simulated demo classroom experience after booking.
+
+This allows the complete customer journey to be demonstrated:
+
+    Booking
+       |
+       v
+    Confirmation
+       |
+       v
+    Demo Class
+       |
+       v
+    Leave Demo
+       |
+       v
+    Home Page
+
 ## Current Limitations
 
+- The demo classroom is simulated rather than a real video-conferencing environment.
 - Meeting links are generated as demo links rather than real video-conference links.
 - Email notifications are not integrated.
 - Authentication and user accounts are not implemented.
@@ -348,6 +440,7 @@ This allows accurate timezone and DST handling.
 - Concurrent booking protection could be strengthened with transactional or atomic reservation logic.
 - Production deployment configuration is not included.
 - Automated test coverage can be expanded.
+- The demo classroom currently uses browser local storage for its temporary classroom state.
 
 ## Future Improvements
 
@@ -367,6 +460,8 @@ This allows accurate timezone and DST handling.
 - Booking analytics
 - Notification system
 - Payment integration for paid classes
+- Real-time classroom functionality
+- Real-time mentor/student video communication
 
 ## Security Considerations
 
@@ -421,7 +516,16 @@ Possible production improvements include:
     Show Confirmation
           |
           v
-    Generate Meeting Link
+    Try Demo Class
+          |
+          v
+    Open Demo Classroom
+          |
+          v
+    Leave Demo
+          |
+          v
+    Return to Home Page
 
 ## Timezone Conversion Example
 
@@ -517,6 +621,8 @@ The matching process considers:
           +
     Working Hours
           +
+    Working Days
+          +
     Timezone
           +
     Daily Capacity
@@ -560,6 +666,7 @@ Responsible for application and business logic such as:
 - Mentor matching
 - Booking validation
 - Timezone conversion
+- Booking creation
 
 ### Models
 
@@ -576,6 +683,7 @@ Contains reusable helper functionality such as:
 ## Example Booking Request
 
     POST /api/bookings
+
     Content-Type: application/json
 
     {
@@ -596,61 +704,148 @@ The API calculates available trial slots according to the selected date and time
 
 ## Application Workflow
 
-                        ┌─────────────────────┐
-                        │   Parent Opens App  │
-                        └──────────┬──────────┘
-                                   |
-                                   v
-                        ┌─────────────────────┐
-                        │ Select Timezone     │
-                        └──────────┬──────────┘
-                                   |
-                                   v
-                        ┌─────────────────────┐
-                        │ Select Date         │
-                        └──────────┬──────────┘
-                                   |
-                                   v
-                        ┌─────────────────────┐
-                        │ Get Availability    │
-                        └──────────┬──────────┘
-                                   |
-                                   v
-                        ┌─────────────────────┐
-                        │ Select Trial Slot   │
-                        └──────────┬──────────┘
-                                   |
-                                   v
-                        ┌─────────────────────┐
-                        │ Parent + Student    │
-                        │ Details             │
-                        └──────────┬──────────┘
-                                   |
-                                   v
-                        ┌─────────────────────┐
-                        │ Backend Validation  │
-                        └──────────┬──────────┘
-                                   |
-                                   v
-                        ┌─────────────────────┐
-                        │ Find Mentor         │
-                        └──────────┬──────────┘
-                                   |
-                                   v
-                        ┌─────────────────────┐
-                        │ Create Booking      │
-                        └──────────┬──────────┘
-                                   |
-                                   v
-                        ┌─────────────────────┐
-                        │ MongoDB             │
-                        └──────────┬──────────┘
-                                   |
-                                   v
-                        ┌─────────────────────┐
-                        │ Booking Confirmation│
-                        │ + Meeting Link      │
-                        └─────────────────────┘
+                          ┌─────────────────────┐
+                          │   Parent Opens App  │
+                          └──────────┬──────────┘
+                                     |
+                                     v
+                          ┌─────────────────────┐
+                          │ Select Timezone     │
+                          └──────────┬──────────┘
+                                     |
+                                     v
+                          ┌─────────────────────┐
+                          │ Select Date         │
+                          └──────────┬──────────┘
+                                     |
+                                     v
+                          ┌─────────────────────┐
+                          │ Get Availability    │
+                          └──────────┬──────────┘
+                                     |
+                                     v
+                          ┌─────────────────────┐
+                          │ Select Trial Slot   │
+                          └──────────┬──────────┘
+                                     |
+                                     v
+                          ┌─────────────────────┐
+                          │ Parent + Student    │
+                          │ Details             │
+                          └──────────┬──────────┘
+                                     |
+                                     v
+                          ┌─────────────────────┐
+                          │ Backend Validation  │
+                          └──────────┬──────────┘
+                                     |
+                                     v
+                          ┌─────────────────────┐
+                          │ Find Mentor         │
+                          └──────────┬──────────┘
+                                     |
+                                     v
+                          ┌─────────────────────┐
+                          │ Create Booking      │
+                          └──────────┬──────────┘
+                                     |
+                                     v
+                          ┌─────────────────────┐
+                          │ MongoDB             │
+                          └──────────┬──────────┘
+                                     |
+                                     v
+                          ┌─────────────────────┐
+                          │ Booking Confirmation│
+                          │ + Demo Class Link   │
+                          └──────────┬──────────┘
+                                     |
+                                     v
+                          ┌─────────────────────┐
+                          │ Try Demo Class      │
+                          └──────────┬──────────┘
+                                     |
+                                     v
+                          ┌─────────────────────┐
+                          │ Demo Classroom      │
+                          └──────────┬──────────┘
+                                     |
+                                     v
+                          ┌─────────────────────┐
+                          │ Leave Demo          │
+                          └──────────┬──────────┘
+                                     |
+                                     v
+                          ┌─────────────────────┐
+                          │ Elevora Home Page   │
+                          └─────────────────────┘
+
+## Demo Classroom Workflow
+
+The demo classroom is available through the booking confirmation after a successful trial booking.
+
+The flow is:
+
+    Booking Confirmation
+          |
+          v
+    Try Demo Class
+          |
+          v
+    Open ?demo=1
+          |
+          v
+    Read Demo Booking Data
+          |
+          v
+    Display Demo Classroom
+          |
+          v
+    Start Demo Class
+          |
+          v
+    Leave Demo
+          |
+          v
+    Return to /
+
+The demo classroom is implemented inside the frontend application and uses the booking information stored in browser local storage.
+
+## Demo Classroom Information
+
+The demo classroom can display information related to the confirmed booking, including:
+
+- Student name
+- Student age
+- Parent information
+- Mentor information
+- Selected date
+- Selected time
+- Parent timezone
+- Trial class duration
+- Demo classroom status
+
+The classroom is intended to simulate the user experience of joining an online trial class without requiring an external video conferencing provider.
+
+## Customer Experience
+
+The application is designed around a simple parent-first booking experience.
+
+The intended customer journey is:
+
+1. Parent opens Elevora.
+2. Parent selects their timezone.
+3. Parent chooses a suitable date.
+4. Parent views available trial slots.
+5. Parent selects a slot.
+6. Parent enters their details.
+7. Parent enters the student's details.
+8. The system automatically finds a suitable mentor.
+9. The booking is created.
+10. The parent receives a booking confirmation.
+11. The parent can try the demo class.
+12. The demo class opens in a separate browser tab.
+13. The parent can leave the demo and return to the Elevora home page.
 
 ## Project Branding
 
@@ -684,6 +879,8 @@ The project demonstrates:
 - Backend validation
 - Booking conflict prevention
 - Mentor assignment
+- Demo classroom experience
+- New-tab demo class navigation
 - Responsive UI development
 - TypeScript
 - React

@@ -28,6 +28,18 @@ type Mentor = {
   image: string;
 };
 
+type DemoBooking = {
+  bookingId?: string;
+  parentName: string;
+  studentName: string;
+  studentAge: number;
+  mentorName: string;
+  mentorTimezone: string;
+  date: string;
+  localTime: string;
+  timezone: string;
+};
+
 const timezones: TimezoneOption[] = [
   {
     label: "India Standard Time",
@@ -319,7 +331,208 @@ function Icon({
   }
 }
 
-function App() {
+function DemoClassPage() {
+  const [booking, setBooking] = useState<DemoBooking | null>(null);
+  const [started, setStarted] = useState(false);
+
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem("elevora-demo-booking");
+      if (saved) {
+        setBooking(JSON.parse(saved) as DemoBooking);
+      }
+    } catch {
+      setBooking(null);
+    }
+  }, []);
+
+  if (!booking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 px-5 text-white">
+        <div className="w-full max-w-lg rounded-[28px] border border-white/10 bg-white/[0.06] p-8 text-center shadow-2xl">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-lg font-black text-slate-950">
+            E
+          </div>
+          <h1 className="mt-6 text-3xl font-black">Demo class unavailable</h1>
+          <p className="mt-3 text-sm leading-6 text-slate-400">
+            Please return to the Elevora booking page and open the demo class from your booking confirmation.
+          </p>
+          <a
+            href="/"
+            className="mt-7 inline-flex items-center gap-2 rounded-2xl bg-white px-6 py-3.5 text-sm font-bold text-slate-950 transition hover:bg-slate-200"
+          >
+            Back to Elevora
+            <Icon name="arrow" size={16} />
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#f7f8fc] text-slate-900">
+      <header className="border-b border-slate-200 bg-white">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 text-sm font-black text-white">
+              E
+            </div>
+            <div>
+              <div className="text-lg font-bold tracking-tight">Elevora</div>
+              <div className="text-[11px] font-medium text-slate-400">Demo Classroom</div>
+            </div>
+          </div>
+
+          <div className="rounded-full bg-emerald-50 px-4 py-2 text-xs font-bold text-emerald-700">
+            Free Trial · 60 min
+          </div>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-7xl px-5 py-8 lg:px-8 lg:py-10">
+        <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-500">
+              Elevora Demo Classroom
+            </p>
+            <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
+              {started ? "Your trial class is ready" : "Welcome to your trial class"}
+            </h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+              This is a demo classroom for the assessment. In a production version, this area can connect to a live video classroom.
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Scheduled for
+            </p>
+            <p className="mt-1 text-sm font-bold">
+              {booking.date} · {booking.localTime}
+            </p>
+            <p className="mt-1 text-xs text-slate-500">{booking.timezone}</p>
+          </div>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-[1.4fr_0.6fr]">
+          <section className="overflow-hidden rounded-[28px] bg-slate-950 shadow-xl">
+            <div className="relative flex min-h-[480px] items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 p-6 sm:p-10">
+              <div className="absolute left-5 top-5 rounded-full border border-white/10 bg-white/[0.07] px-3 py-1.5 text-[11px] font-bold text-slate-300">
+                DEMO CLASSROOM
+              </div>
+
+              <div className="w-full max-w-xl text-center">
+                <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-white text-2xl font-black text-slate-950 shadow-2xl">
+                  {booking.mentorName
+                    .split(" ")
+                    .map((part) => part[0])
+                    .slice(0, 2)
+                    .join("")}
+                </div>
+
+                <p className="mt-7 text-xs font-bold uppercase tracking-[0.2em] text-indigo-300">
+                  Your mentor
+                </p>
+                <h2 className="mt-2 text-3xl font-black text-white">
+                  {booking.mentorName}
+                </h2>
+                <p className="mt-2 text-sm text-slate-400">
+                  {booking.mentorTimezone}
+                </p>
+
+                <div className="mx-auto mt-8 max-w-md rounded-2xl border border-white/10 bg-white/[0.06] p-5">
+                  <p className="text-sm font-semibold text-slate-200">
+                    {started
+                      ? `Hi ${booking.studentName}! Your demo classroom is ready.`
+                      : `Welcome ${booking.studentName}! Your mentor will guide you through an introductory coding session.`}
+                  </p>
+                  <p className="mt-2 text-xs leading-5 text-slate-400">
+                    {started
+                      ? "For this assessment demo, this screen represents the online classroom."
+                      : "Click the button below to enter the demo classroom."}
+                  </p>
+                </div>
+
+                {!started && (
+                  <button
+                    onClick={() => setStarted(true)}
+                    className="mt-7 inline-flex items-center gap-2 rounded-2xl bg-white px-7 py-4 text-sm font-black text-slate-950 shadow-lg transition hover:-translate-y-0.5 hover:bg-slate-200"
+                  >
+                    Enter demo classroom
+                    <Icon name="arrow" size={17} />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-3 border-t border-white/10 bg-slate-950 p-4">
+              {started && (
+                <>
+                  <button className="rounded-xl bg-white/10 px-4 py-2.5 text-xs font-bold text-white">
+                    🎤 Mic On
+                  </button>
+                  <button className="rounded-xl bg-white/10 px-4 py-2.5 text-xs font-bold text-white">
+                    🎥 Camera On
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      window.location.href = "/";
+                    }}
+                    className="rounded-xl bg-red-500/15 px-4 py-2.5 text-xs font-bold text-red-300 transition hover:bg-red-500/25"
+                  >
+                    Leave demo
+                  </button>
+                </>
+              )}
+            </div>
+          </section>
+
+          <aside className="space-y-5">
+            <div className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+                Student
+              </p>
+              <h2 className="mt-2 text-2xl font-black">{booking.studentName}</h2>
+              <p className="mt-1 text-sm text-slate-500">Age {booking.studentAge}</p>
+
+              <div className="mt-6 space-y-3">
+                <div className="flex items-center justify-between rounded-xl bg-slate-50 p-4">
+                  <span className="text-xs text-slate-500">Mentor</span>
+                  <span className="text-sm font-bold">{booking.mentorName}</span>
+                </div>
+                <div className="flex items-center justify-between rounded-xl bg-slate-50 p-4">
+                  <span className="text-xs text-slate-500">Duration</span>
+                  <span className="text-sm font-bold">60 minutes</span>
+                </div>
+                <div className="flex items-center justify-between rounded-xl bg-slate-50 p-4">
+                  <span className="text-xs text-slate-500">Status</span>
+                  <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">Confirmed</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-[28px] border border-indigo-100 bg-indigo-50 p-6">
+              <div className="flex gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-indigo-600 shadow-sm">
+                  <Icon name="spark" size={19} />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-indigo-950">What happens next?</p>
+                  <p className="mt-2 text-xs leading-5 text-indigo-800">
+                    In a production application, this classroom can be connected to Zoom, Google Meet, or a WebRTC video session.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+function BookingPage() {
   const [parentName, setParentName] = useState("");
   const [parentEmail, setParentEmail] = useState("");
   const [studentName, setStudentName] = useState("");
@@ -337,6 +550,7 @@ function App() {
 
   const [message, setMessage] = useState("");
   const [meetingLink, setMeetingLink] = useState("");
+  const [assignedMentor, setAssignedMentor] = useState<{ name: string; timezone: string } | null>(null);
 
   const [currentStep, setCurrentStep] = useState(1);
 
@@ -385,6 +599,7 @@ function App() {
     setSlots([]);
     setSelectedSlot(null);
     setMeetingLink("");
+    setAssignedMentor(null);
     setMessage("");
   };
 
@@ -520,8 +735,35 @@ function App() {
         throw new Error(data.message || "Booking failed.");
       }
 
+      const mentor = data.booking?.mentor;
+      const mentorName = mentor?.name || "Your Elevora Mentor";
+      const mentorTimezone = mentor?.timezone || timezone;
+
+      const demoBooking: DemoBooking = {
+        bookingId: data.booking?.id,
+        parentName,
+        studentName,
+        studentAge: Number(studentAge),
+        mentorName,
+        mentorTimezone,
+        date: formatSelectedDate(),
+        localTime: selectedSlot.localTime,
+        timezone: `${selectedTimezone.label} (${selectedTimezone.short})`,
+      };
+
+      window.localStorage.setItem(
+        "elevora-demo-booking",
+        JSON.stringify(demoBooking)
+      );
+
+      const demoUrl = `${window.location.origin}/?demo=1`;
+
+      setAssignedMentor({
+        name: mentorName,
+        timezone: mentorTimezone,
+      });
       setMessage("Trial class confirmed.");
-      setMeetingLink(data.booking.meetingLink);
+      setMeetingLink(demoUrl);
       setCurrentStep(4);
     } catch (error) {
       setMessage(
@@ -817,6 +1059,27 @@ function App() {
 
                 </div>
 
+                {assignedMentor && (
+                  <div className="mt-6 rounded-2xl border border-indigo-100 bg-indigo-50/60 p-5">
+                    <p className="text-xs font-bold uppercase tracking-wider text-indigo-500">
+                      Your assigned mentor
+                    </p>
+                    <div className="mt-3 flex items-center justify-between gap-4">
+                      <div>
+                        <p className="text-lg font-black text-slate-950">
+                          {assignedMentor.name}
+                        </p>
+                        <p className="mt-1 text-xs text-slate-500">
+                          Mentor timezone: {assignedMentor.timezone}
+                        </p>
+                      </div>
+                      <div className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
+                        Assigned
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="mt-6 rounded-2xl border border-slate-200 p-5">
 
                   <div className="flex items-center justify-between">
@@ -845,9 +1108,13 @@ function App() {
                   rel="noopener noreferrer"
                   className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-6 py-4 text-sm font-bold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-slate-800"
                 >
-                  Join your trial class
+                  Try Demo Class
                   <Icon name="arrow" size={17} />
                 </a>
+
+                <p className="mt-3 text-center text-xs leading-5 text-slate-400">
+                  The demo classroom will open in a new tab.
+                </p>
 
               </div>
             </div>
@@ -1453,8 +1720,6 @@ function App() {
                 </div>
               )}
 
-
-              {/* STEP 4 */}
               {currentStep === 4 && !meetingLink && (
 
                 <div>
@@ -2155,6 +2420,16 @@ function App() {
 
     </div>
   );
+}
+
+function App() {
+  const demoMode = new URLSearchParams(window.location.search).get("demo") === "1";
+
+  if (demoMode) {
+    return <DemoClassPage />;
+  }
+
+  return <BookingPage />;
 }
 
 export default App;

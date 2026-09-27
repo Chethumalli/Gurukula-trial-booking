@@ -24,9 +24,11 @@ The application allows a parent to:
 4. Enter parent details.
 5. Enter student details.
 6. Confirm a trial class.
-7. Receive a booking confirmation and meeting link.
+7. Receive a booking confirmation.
+8. Open a simulated demo class experience.
+9. Leave the demo class and return to the Elevora home page.
 
-The backend is responsible for calculating mentor availability and creating the booking.
+The backend is responsible for calculating mentor availability, validating booking requests, assigning an eligible mentor, and creating the booking.
 
 ---
 
@@ -64,6 +66,7 @@ The project was implemented using:
 The project was organized into separate frontend and backend applications.
 
     elevora-trial-booking/
+
     │
     ├── client/
     │
@@ -83,13 +86,21 @@ The frontend was created using Vite with React and TypeScript.
 The initial structure included:
 
     client/
+
     ├── src/
+
     │   ├── App.tsx
+
     │   ├── App.css
+
     │   ├── index.css
+
     │   └── main.tsx
+
     ├── public/
+
     ├── package.json
+
     └── vite.config.ts
 
 Tailwind CSS was added for styling.
@@ -97,12 +108,20 @@ Tailwind CSS was added for styling.
 The booking experience was designed around four major steps:
 
     Timezone
+
        ↓
+
     Date & Time
+
        ↓
+
     Your Details
+
        ↓
+
     Confirmation
+
+The application was later extended with a separate demo classroom experience that can be opened after a successful booking.
 
 ---
 
@@ -121,6 +140,7 @@ The branding was chosen to give the application a standalone product identity ra
 The footer clearly identifies the project as:
 
     © 2026 Elevora · Assessment project for CodeYoung
+
     Developed by Chethan C. Malli
 
 ---
@@ -132,18 +152,38 @@ The frontend was designed to minimize unnecessary steps.
 The booking flow became:
 
     Select Timezone
+
            ↓
+
     Select Date
+
            ↓
+
     Select Available Time
+
            ↓
+
     Enter Parent Details
+
            ↓
+
     Enter Student Details
+
            ↓
+
     Review Booking
+
            ↓
+
     Confirm
+
+           ↓
+
+    Booking Confirmation
+
+           ↓
+
+    Try Demo Class
 
 A mentor is automatically selected by the backend instead of requiring the parent to manually choose one.
 
@@ -177,13 +217,21 @@ The booking system automatically determines which mentor can handle a selected s
 The backend follows a layered architecture.
 
     Routes
+
       ↓
+
     Controllers
+
       ↓
+
     Services
+
       ↓
+
     Models
+
       ↓
+
     MongoDB
 
 ### Routes
@@ -203,17 +251,20 @@ Controllers handle:
 
 Services contain business logic.
 
-The main services are:
+The main services include:
 
     availability.service.ts
+
     booking.service.ts
-    timezone.service.ts
+
+    timezone utilities
 
 ### Models
 
 Mongoose models define the database structure.
 
     Mentor
+
     Booking
 
 ---
@@ -224,28 +275,49 @@ Two main MongoDB collections were used.
 
 ## Mentors
 
-The mentor document contains:
+The mentor document contains information such as:
 
     name
+
     email
+
     timezone
+
+    workingHours
+
+    workingDays
+
     isActive
-    maxDailyBookings
 
 ## Bookings
 
 The booking document contains:
 
     parentName
+
     parentEmail
+
     parentTimezone
+
     studentName
+
     studentAge
+
     mentorId
+
+    mentorName
+
+    mentorTimezone
+
     startTimeUTC
+
     endTimeUTC
+
     status
-    meetingLink
+
+    classLink
+
+The booking information is stored in MongoDB after successful validation and mentor assignment.
 
 ---
 
@@ -258,32 +330,42 @@ Luxon was used because it supports IANA timezone identifiers and daylight-saving
 Example timezones:
 
     Asia/Kolkata
+
     Europe/London
+
     America/New_York
 
 The selected parent time is converted into UTC.
 
     Parent Local Time
+
             ↓
+
     IANA Timezone
+
             ↓
+
           Luxon
+
             ↓
+
            UTC
+
             ↓
+
          MongoDB
 
 When availability is calculated, the UTC slot is converted into every mentor's timezone.
 
-The mentor's local working hours are then checked.
+The mentor's local working hours and local calendar day are then checked.
 
 ---
 
 # 11. Working Hours
 
-The system uses the following mentor working window:
+The mentor availability system uses a defined working window.
 
-    09:00 — 20:00
+The demo mentors are configured with working hours that allow the backend to determine whether a selected parent slot can be handled by a particular mentor.
 
 Each trial class lasts:
 
@@ -291,19 +373,23 @@ Each trial class lasts:
 
 A mentor cannot be assigned if the selected booking falls outside their working window.
 
+The working-hours check is performed using the mentor's local timezone rather than the parent's timezone.
+
 ---
 
 # 12. Daily Booking Capacity
 
 Each mentor has a maximum daily booking limit.
 
-The demo mentor data uses:
+The assessment requirement limits a mentor to a maximum of two demo classes per day.
 
-    maxDailyBookings = 2
+The backend therefore checks the mentor's local calendar day before assigning a booking.
 
 Before creating a booking, the backend counts confirmed bookings for that mentor's local calendar day.
 
 If the maximum has been reached, that mentor is skipped.
+
+This prevents a mentor from being assigned more than the allowed number of demo classes in a local day.
 
 ---
 
@@ -314,12 +400,14 @@ The booking service checks whether the requested interval overlaps an existing c
 The overlap condition is effectively:
 
     Existing start < New end
+
     AND
+
     Existing end > New start
 
 If an overlap is found, the mentor is not assigned.
 
-This prevents two bookings from occupying the same mentor at the same time.
+This prevents two confirmed bookings from occupying the same mentor at the same time.
 
 ---
 
@@ -330,12 +418,14 @@ A booking should not cross into another mentor's local calendar day.
 A validation check was added to ensure:
 
     mentorStart local date
+
     ==
+
     mentorEnd local date
 
 If the dates are different, the mentor is skipped.
 
-This keeps the availability calculation and booking creation logic consistent.
+This keeps the availability calculation and booking creation logic consistent with the mentor's local calendar.
 
 ---
 
@@ -344,15 +434,16 @@ This keeps the availability calculation and booking creation logic consistent.
 The frontend collects:
 
     Student Name
+
     Student Age
 
 The supported age range is:
 
     6 — 17
 
-The backend validates the age using both Zod and Mongoose.
+The backend validates the booking request before creating the booking.
 
-This prevents invalid values from being accepted by the API or stored in the database.
+This prevents invalid student information from being accepted by the booking API.
 
 ---
 
@@ -383,14 +474,22 @@ Zod was introduced to validate incoming booking data.
 The booking request validates:
 
     Parent name
+
     Parent email
+
     Parent timezone
+
     Student name
+
     Student age
+
     Start time
+
     End time
 
 Invalid requests are rejected before booking logic is executed.
+
+This provides a second layer of protection in addition to frontend validation.
 
 ---
 
@@ -410,16 +509,16 @@ A `.env.example` file is provided so another developer knows which environment v
 
 # 19. Mentor Seed Data
 
-A seed script was created:
-
-    server/src/utils/seedMentors.ts
+A seed script was created for the initial mentor data.
 
 The script inserts 10 demo mentors.
 
 Mentors are distributed across:
 
     Asia/Kolkata
+
     Europe/London
+
     America/New_York
 
 This distribution makes timezone-aware scheduling easier to demonstrate.
@@ -447,7 +546,9 @@ Availability initially produced slots that were not valid for the mentor's local
 The logic was updated to check:
 
     Mentor local start time
+
     Mentor local end time
+
     Mentor local date
 
 This prevented invalid cross-midnight mentor slots.
@@ -469,57 +570,248 @@ The frontend initially collected student name and age, but the backend booking m
 The following layers were updated:
 
     Booking model
+
            ↓
+
     Booking controller
+
            ↓
+
     Booking service
+
            ↓
+
          MongoDB
 
 After the update, an end-to-end booking was created and verified in MongoDB.
 
 ---
 
-# 21. End-to-End Verification
+### Frontend and Backend Contract
+
+During development, the frontend and backend booking response structures were reviewed to make sure the information required by the confirmation screen was available.
+
+The booking confirmation uses the successful booking response to display the confirmation state and provide access to the demo class experience.
+
+---
+
+### Demo Class Navigation
+
+The demo class feature was added after the main booking workflow was completed.
+
+The initial implementation required additional handling to keep the booking page and demo classroom separate.
+
+The frontend was structured so that:
+
+    Normal URL
+
+        ↓
+
+    Booking Page
+
+and:
+
+    ?demo=1
+
+        ↓
+
+    Demo Classroom
+
+This keeps the booking experience and demo classroom experience separate while allowing both to exist within the same React application.
+
+---
+
+# 21. Demo Class Feature
+
+A simulated demo class experience was added after the booking flow was completed.
+
+The assessment allows a dummy class link, so a real video-conferencing integration was not required.
+
+The demo class provides a realistic next step after booking confirmation.
+
+The flow is:
+
+    Booking Confirmed
+
+          ↓
+
+    Try Demo Class
+
+          ↓
+
+    Open Demo in New Tab
+
+          ↓
+
+    Demo Classroom
+
+          ↓
+
+    Start Demo Class
+
+          ↓
+
+    Leave Demo
+
+          ↓
+
+    Elevora Home Page
+
+---
+
+# 22. Demo Class New-Tab Experience
+
+The **Try Demo Class** action opens the demo classroom in a new browser tab.
+
+This was implemented to make the experience closer to a real online class platform.
+
+The original booking page remains available in the previous browser tab.
+
+The demo classroom can therefore be treated as a separate classroom experience without losing the original booking page.
+
+---
+
+# 23. Demo Booking Data
+
+The booking information required by the demo classroom is temporarily stored in browser local storage.
+
+The stored information can include:
+
+    Parent Name
+
+    Student Name
+
+    Student Age
+
+    Mentor Name
+
+    Mentor Timezone
+
+    Selected Date
+
+    Selected Time
+
+    Parent Timezone
+
+    Booking Information
+
+This allows the demo classroom to retrieve the booking information after it is opened in a new browser tab.
+
+---
+
+# 24. Demo Classroom Page
+
+The demo classroom was implemented as a dedicated frontend view.
+
+The classroom provides a simulated online learning environment rather than a real video-conference connection.
+
+The purpose of the page is to demonstrate what the parent/student experience could look like after successfully booking a trial class.
+
+The classroom can display relevant booking information and provide a clear action to enter or start the demo class.
+
+---
+
+# 25. Leave Demo Navigation
+
+A **Leave Demo** button was added to the demo classroom.
+
+When the user clicks the button:
+
+    Demo Classroom
+
+          ↓
+
+    Leave Demo
+
+          ↓
+
+    /
+
+          ↓
+
+    Elevora Home Page
+
+The button uses the application's root route so the user can return directly to the main booking experience.
+
+This also provides a clear exit path from the demo classroom.
+
+---
+
+# 26. Demo Class Refresh Handling
+
+The demo classroom retrieves its temporary booking information from browser local storage.
+
+This means the demo page can restore the booking information after a page refresh as long as the temporary booking data is still available in the browser.
+
+If no demo booking information is available, the application can show an appropriate unavailable state and provide navigation back to Elevora.
+
+---
+
+# 27. End-to-End Verification
 
 A complete booking was successfully tested through the frontend.
 
 The tested flow was:
 
     Open Elevora
+
           ↓
+
     Select timezone
+
           ↓
+
     Select date
+
           ↓
+
     Select available slot
+
           ↓
+
     Enter parent details
+
           ↓
+
     Enter student details
+
           ↓
+
     Confirm booking
+
           ↓
+
     Success screen
-          ↓
-    Meeting link displayed
-          ↓
-    MongoDB document verified
 
-The saved MongoDB booking contained:
+          ↓
 
-    Parent details
-    Student details
-    Timezone
-    Mentor ID
-    UTC start time
-    UTC end time
-    Confirmed status
-    Meeting link
+    Try Demo Class
+
+          ↓
+
+    Demo classroom opens
+
+          ↓
+
+    Demo class experience
+
+          ↓
+
+    Leave Demo
+
+          ↓
+
+    Return to Elevora home page
+
+          ↓
+
+    MongoDB booking verified
+
+The saved MongoDB booking contains the booking information required by the backend.
 
 ---
 
-# 22. Production Build Verification
+# 28. Production Build Verification
 
 The backend was tested using:
 
@@ -533,11 +825,11 @@ The frontend was tested using:
 
 Vite completed the production build successfully.
 
-The final project therefore passed both frontend and backend production compilation.
+The demo class implementation was also checked as part of the frontend development flow.
 
 ---
 
-# 23. Environment Configuration
+# 29. Environment Configuration
 
 The frontend API URL was moved into an environment variable.
 
@@ -553,24 +845,29 @@ instead of hardcoding the backend URL throughout the application.
 
 This makes the frontend easier to configure for deployment.
 
+For production, the environment variable can point to the deployed backend URL.
+
 ---
 
-# 24. Git Configuration
+# 30. Git Configuration
 
 A root `.gitignore` was created to prevent unnecessary or sensitive files from being committed.
 
 Ignored files include:
 
     node_modules/
+
     dist/
+
     .env
+
     *.log
 
 The actual MongoDB connection string is therefore not included in the repository.
 
 ---
 
-# 25. AI-Assisted Development
+# 31. AI-Assisted Development
 
 AI assistance was used throughout the development process as a coding and problem-solving assistant.
 
@@ -586,6 +883,8 @@ The AI was used for:
 - Debugging TypeScript errors
 - Frontend implementation guidance
 - UI/UX refinement
+- Demo classroom implementation
+- Navigation and user-flow refinement
 - README documentation
 - Git workflow guidance
 - Testing suggestions
@@ -594,7 +893,7 @@ The implementation was reviewed and executed locally during development.
 
 ---
 
-# 26. AI Guidance Examples
+# 32. AI Guidance Examples
 
 Examples of development guidance included:
 
@@ -614,13 +913,19 @@ Examples of development guidance included:
 
     Debug TypeScript and build errors.
 
+    Add a demo classroom experience after booking.
+
+    Open the demo class in a new browser tab.
+
+    Add a Leave Demo action that returns to the home page.
+
     Prepare project documentation.
 
 The AI was used primarily to accelerate implementation, debugging, explanation, and documentation.
 
 ---
 
-# 27. Important Design Decisions
+# 33. Important Design Decisions
 
 ## Why React + TypeScript?
 
@@ -642,68 +947,227 @@ Luxon provides reliable timezone-aware date and time operations using IANA timez
 
 Zod provides runtime validation for API input while maintaining a clean TypeScript development experience.
 
+## Why a Simulated Demo Classroom?
+
+The assessment allows a dummy class link, so a real video-conferencing integration was not necessary.
+
+A simulated classroom provides a complete user journey while keeping the project within the assessment scope.
+
+## Why Open the Demo in a New Tab?
+
+Opening the demo classroom in a new tab makes the transition feel closer to a real online class experience while preserving the original booking page.
+
+## Why Use Local Storage for Demo Data?
+
+The demo classroom is a frontend simulation. Browser local storage provides a simple way to transfer the confirmed booking information into the new demo tab without requiring another backend API specifically for the demo classroom.
+
 ---
 
-# 28. Current Scope
+# 34. Current Scope
 
 The completed application includes:
 
     ✓ Responsive booking UI
+
     ✓ Timezone selection
+
     ✓ Date selection
+
     ✓ Available slots
+
     ✓ Mentor availability
+
     ✓ Mentor capacity limits
+
     ✓ Conflict prevention
+
     ✓ Parent details
+
     ✓ Student details
+
     ✓ Student age validation
+
     ✓ Automatic mentor assignment
+
     ✓ MongoDB persistence
-    ✓ Meeting link generation
+
     ✓ Booking confirmation
+
+    ✓ Demo class experience
+
+    ✓ Demo class opens in a new browser tab
+
+    ✓ Demo booking data persistence
+
+    ✓ Leave Demo navigation
+
+    ✓ Return to Elevora home page
+
     ✓ Mentor directory
+
     ✓ REST API
+
     ✓ Production builds
 
 ---
 
-# 29. Future Improvements
+# 35. Future Improvements
 
 Possible production improvements include:
 
     • Real Google Meet or Zoom integration
+
     • Email confirmation
+
     • Calendar invitations
+
     • Parent authentication
+
     • Booking history
+
     • Cancellation
+
     • Rescheduling
+
     • Admin dashboard
+
     • Mentor dashboard
+
     • Automated tests
+
     • Monitoring
+
     • Rate limiting
+
     • Stronger concurrency protection
+
     • Production deployment
+
+    • Real-time classroom functionality
+
+    • Real-time mentor/student video communication
 
 ---
 
-# 30. Final Result
+# 36. Final User Journey
+
+The final customer journey is:
+
+    Parent Opens Elevora
+
+             ↓
+
+    Selects Timezone
+
+             ↓
+
+    Selects Date
+
+             ↓
+
+    Views Available Slots
+
+             ↓
+
+    Selects Trial Slot
+
+             ↓
+
+    Enters Parent Details
+
+             ↓
+
+    Enters Student Details
+
+             ↓
+
+    Confirms Booking
+
+             ↓
+
+    Booking Confirmation
+
+             ↓
+
+    Try Demo Class
+
+             ↓
+
+    Demo Opens in New Tab
+
+             ↓
+
+    Demo Classroom
+
+             ↓
+
+    Start Demo Class
+
+             ↓
+
+    Leave Demo
+
+             ↓
+
+    Elevora Home Page
+
+This provides a complete end-to-end customer experience from discovering a trial class to booking and experiencing a simulated online class.
+
+---
+
+# 37. Final Result
 
 The final Elevora application provides a complete trial-class booking workflow with:
 
     Timezone-aware scheduling
+
             +
+
     Mentor availability
+
             +
+
     Booking validation
+
             +
+
+    Mentor capacity management
+
+            +
+
+    Conflict prevention
+
+            +
+
     MongoDB persistence
+
             +
+
+    Automatic mentor assignment
+
+            +
+
+    Booking confirmation
+
+            +
+
+    Demo classroom experience
+
+            +
+
+    New-tab classroom navigation
+
+            +
+
+    Leave Demo navigation
+
+            +
+
     Responsive user experience
 
 The system was tested locally from frontend interaction through backend processing and database persistence.
+
+The final customer journey can be completed without leaving the Elevora application experience.
 
 ---
 
