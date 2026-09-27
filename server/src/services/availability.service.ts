@@ -28,80 +28,177 @@ export const getAvailableSlots = async (
     throw new Error("Invalid date or timezone");
   }
 
-  // Get active mentors once
-  const mentors = await Mentor.find({
-    isActive: true,
-  }).lean();
+  /*
+   * Fetch mentors and bookings at the same time.
+   *
+   * This removes unnecessary waiting between the two
+   * independent MongoDB requests.
+   */
+  const selectedDayStart = parentDate.startOf("day");
+  const selectedDayEnd = parentDate.endOf("day");
+
+  /*
+   * Mentors can be in different timezones, so use a wider
+   * UTC range around the parent's selected day.
+   */
+  const rangeStartUTC = selectedDayStart
+    .minus({ days: 2 })
+    .toUTC()
+    .toJSDate();
+
+  const rangeEndUTC = selectedDayEnd
+    .plus({ days: 2 })
+    .toUTC()
+    .toJSDate();
+
+  const [mentors, bookings] = await Promise.all([
+    Mentor.find({
+      isActive: true,
+    })
+      .select(
+        "_id name timezone workingHours workingDays maxDailyBookings"
+      )
+      .lean(),
+
+    Booking.find({
+      status: "confirmed",
+      startTimeUTC: {
+        $lt: rangeEndUTC,
+      },
+      endTimeUTC: {
+        $gt: rangeStartUTC,
+      },
+    })
+      .select("mentorId startTimeUTC endTimeUTC")
+      .lean(),
+  ]);
 
   if (mentors.length === 0) {
     return [];
   }
 
   /*
-   * Fetch bookings once instead of querying MongoDB
-   * separately for every mentor and every time slot.
+   * -------------------------------------------------------
+   * GROUP BOOKINGS ONCE
+   * -------------------------------------------------------
    *
-   * We fetch a wide UTC range around the selected date
-   * because mentors can be in different timezones.
+   * Instead of doing:
+   *
+   * bookings.filter(...)
+   *
+   * for every slot and every mentor, we create a Map once.
+   *
+   * Key:
+   * mentorId + mentor's local calendar date
+   *
+   * Example:
+   * "67abc123|2026-09-27"
    */
-  const selectedDayStart = parentDate.startOf("day");
-  const selectedDayEnd = parentDate.endOf("day");
+  const bookingsByMentorDay = new Map<
+    string,
+    typeof bookings
+  >();
 
-  const rangeStartUTC = selectedDayStart
-    .minus({ days: 1 })
-    .toUTC()
-    .toJSDate();
+  for (const booking of bookings) {
+    const mentor = mentors.find(
+      (item) =>
+        String(item._id) === String(booking.mentorId)
+    );
 
-  const rangeEndUTC = selectedDayEnd
-    .plus({ days: 1 })
-    .toUTC()
-    .toJSDate();
+    if (!mentor) {
+      continue;
+    }
 
-  const bookings = await Booking.find({
-    status: "confirmed",
-    startTimeUTC: {
-      $lt: rangeEndUTC,
-    },
-    endTimeUTC: {
-      $gt: rangeStartUTC,
-    },
-  })
-    .select("mentorId startTimeUTC endTimeUTC")
-    .lean();
+    const mentorLocalDate = DateTime.fromJSDate(
+      booking.startTimeUTC
+    )
+      .setZone(mentor.timezone)
+      .toISODate();
+
+    if (!mentorLocalDate) {
+      continue;
+    }
+
+    const key = `${String(booking.mentorId)}|${mentorLocalDate}`;
+
+    const existing = bookingsByMentorDay.get(key);
+
+    if (existing) {
+      existing.push(booking);
+    } else {
+      bookingsByMentorDay.set(key, [booking]);
+    }
+  }
 
   const slots: AvailabilitySlot[] = [];
+
+  /*
+   * Pre-calculate the parent timezone slots.
+   *
+   * This means localTimeToUTC() is not repeatedly called
+   * for every mentor.
+   */
+  const parentSlots: Array<{
+    time: string;
+    startUTC: DateTime;
+    endUTC: DateTime;
+  }> = [];
 
   for (let hour = START_HOUR; hour < END_HOUR; hour++) {
     const time = `${String(hour).padStart(2, "0")}:00`;
 
-    let startUTC: DateTime;
-
     try {
-      startUTC = localTimeToUTC(
+      const startUTC = localTimeToUTC(
         date,
         time,
         parentTimezone
       );
-    } catch {
-      continue;
-    }
 
-    const endUTC = startUTC.plus({
-      minutes: TRIAL_DURATION_MINUTES,
-    });
+      const endUTC = startUTC.plus({
+        minutes: TRIAL_DURATION_MINUTES,
+      });
+
+      parentSlots.push({
+        time,
+        startUTC,
+        endUTC,
+      });
+    } catch {
+      // Ignore invalid DST/local-time combinations.
+    }
+  }
+
+  /*
+   * -------------------------------------------------------
+   * CHECK EACH SLOT
+   * -------------------------------------------------------
+   */
+  for (const slot of parentSlots) {
+    const startUTCDate = slot.startUTC.toJSDate();
+    const endUTCDate = slot.endUTC.toJSDate();
 
     let availableMentorCount = 0;
 
     for (const mentor of mentors) {
-      const mentorStart = startUTC.setZone(
+      /*
+       * Convert the slot into the mentor's timezone.
+       *
+       * Luxon handles DST automatically because the mentor
+       * timezone is an IANA timezone.
+       */
+      const mentorStart = slot.startUTC.setZone(
         mentor.timezone
       );
 
-      const mentorEnd = endUTC.setZone(
+      const mentorEnd = slot.endUTC.setZone(
         mentor.timezone
       );
 
-      // Mentor working hours: 9 AM - 8 PM local time
+      /*
+       * ---------------------------------------------------
+       * WORKING HOURS CHECK
+       * ---------------------------------------------------
+       */
       const startMinutes =
         mentorStart.hour * 60 + mentorStart.minute;
 
@@ -111,61 +208,81 @@ export const getAvailableSlots = async (
       const workingStart = START_HOUR * 60;
       const workingEnd = END_HOUR * 60;
 
-      // Skip if the mentor is outside working hours
       if (
         startMinutes < workingStart ||
         startMinutes >= workingEnd ||
-        endMinutes > workingEnd ||
-        mentorEnd.toISODate() !== mentorStart.toISODate()
+        endMinutes > workingEnd
       ) {
         continue;
       }
 
-      const mentorLocalDate = mentorStart.toISODate();
+      /*
+       * A demo class must remain inside the mentor's
+       * local calendar day.
+       */
+      if (
+        mentorStart.toISODate() !==
+        mentorEnd.toISODate()
+      ) {
+        continue;
+      }
+
+      const mentorLocalDate =
+        mentorStart.toISODate();
 
       if (!mentorLocalDate) {
         continue;
       }
 
       /*
-       * Count this mentor's bookings for their local day.
+       * ---------------------------------------------------
+       * GET BOOKINGS IN O(1)
+       * ---------------------------------------------------
+       *
+       * Instead of:
+       *
+       * bookings.filter(...)
+       *
+       * we directly retrieve the bookings for this
+       * mentor + local day.
        */
-      const dayStartUTC = mentorStart
-        .startOf("day")
-        .toUTC()
-        .toJSDate();
+      const bookingKey = `${String(
+        mentor._id
+      )}|${mentorLocalDate}`;
 
-      const dayEndUTC = mentorStart
-        .endOf("day")
-        .toUTC()
-        .toJSDate();
+      const mentorBookings =
+        bookingsByMentorDay.get(bookingKey) || [];
 
-      const mentorBookings = bookings.filter(
-        (booking) =>
-          String(booking.mentorId) ===
-            String(mentor._id) &&
-          booking.startTimeUTC >= dayStartUTC &&
-          booking.startTimeUTC <= dayEndUTC
-      );
+      /*
+       * ---------------------------------------------------
+       * DAILY BOOKING LIMIT
+       * ---------------------------------------------------
+       */
+      const maxDailyBookings =
+        mentor.maxDailyBookings ?? 2;
 
-      // Respect mentor's maximum daily booking limit
       if (
         mentorBookings.length >=
-        mentor.maxDailyBookings
+        maxDailyBookings
       ) {
         continue;
       }
 
       /*
-       * Check whether this mentor already has a
-       * confirmed booking overlapping this slot.
+       * ---------------------------------------------------
+       * OVERLAP CHECK
+       * ---------------------------------------------------
+       *
+       * Existing booking overlaps when:
+       *
+       * existing.start < new.end
+       * AND
+       * existing.end > new.start
        */
       const hasOverlap = mentorBookings.some(
         (booking) =>
-          booking.startTimeUTC <
-            endUTC.toJSDate() &&
-          booking.endTimeUTC >
-            startUTC.toJSDate()
+          booking.startTimeUTC < endUTCDate &&
+          booking.endTimeUTC > startUTCDate
       );
 
       if (hasOverlap) {
@@ -175,12 +292,16 @@ export const getAvailableSlots = async (
       availableMentorCount++;
     }
 
+    /*
+     * Only return slots where at least one mentor
+     * is actually available.
+     */
     if (availableMentorCount > 0) {
       slots.push({
-        startTimeUTC: startUTC.toISO()!,
-        endTimeUTC: endUTC.toISO()!,
+        startTimeUTC: slot.startUTC.toISO()!,
+        endTimeUTC: slot.endUTC.toISO()!,
         localDate: date,
-        localTime: time,
+        localTime: slot.time,
         availableMentors: availableMentorCount,
       });
     }
