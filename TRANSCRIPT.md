@@ -1,6 +1,6 @@
 # TRANSCRIPT.md
 
-# Gurukula — Development Transcript
+# Elevora — Development Transcript
 
 ## Project
 
