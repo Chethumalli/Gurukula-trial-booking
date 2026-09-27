@@ -1,8 +1,8 @@
 # README.md
 
-# Elevora — Trial Class Booking Platform
+# Gurukula — Trial Class Booking Platform
 
-Elevora is a timezone-aware trial class booking platform built as a full-stack assessment project for CodeYoung.
+Gurukula is a timezone-aware trial class booking platform built as a full-stack assessment project for CodeYoung.
 
 The application allows parents to select their timezone, choose a preferred date and available trial slot, enter parent and student details, receive a confirmed trial booking, and enter a simulated demo classroom experience through the generated demo class link.
 
@@ -23,7 +23,7 @@ The application allows parents to select their timezone, choose a preferred date
 - Demo classroom experience after successful booking
 - Demo class opens in a new browser tab
 - Demo classroom displays booking and student information
-- Leave Demo button to return to the Elevora home page
+- Leave Demo button to return to the Gurukula home page
 - Mentor directory with profiles
 - Mentor category filtering
 - IANA timezone and DST support
@@ -31,7 +31,7 @@ The application allows parents to select their timezone, choose a preferred date
 - REST API architecture
 - Local booking data persistence for the demo classroom
 - Responsive UI for booking and demo classroom screens
-- Footer with Elevora branding
+- Footer with Gurukula branding
 - View Portfolio button in the footer
 
 ## Tech Stack
@@ -67,13 +67,13 @@ The project is deployed and publicly accessible.
 
 Vercel:
 
-https://elevora-trial-booking.vercel.app
+https://Gurukula-trial-booking.vercel.app
 
 ### Backend API
 
 Render:
 
-https://elevora-api.onrender.com
+https://Gurukula-api.onrender.com
 
 ### Database
 
@@ -98,7 +98,7 @@ The deployed frontend communicates with the deployed backend using the `VITE_API
 
 Production configuration:
 
-    VITE_API_URL=https://elevora-api.onrender.com
+    VITE_API_URL=https://Gurukula-api.onrender.com
 
 ## Architecture
 
@@ -152,7 +152,7 @@ When the user opens the demo class:
 3. The demo classroom displays the student's booking information.
 4. The user can enter the simulated demo classroom.
 5. The user can leave the demo at any time.
-6. Clicking **Leave Demo** returns the user to the Elevora home page.
+6. Clicking **Leave Demo** returns the user to the Gurukula home page.
 
 The demo classroom is intentionally simulated because the assessment allows a dummy class or meeting link.
 
@@ -176,17 +176,17 @@ The demo classroom is intentionally simulated because the assessment allows a du
     Leave Demo
           |
           v
-    Elevora Home Page
+    Gurukula Home Page
 
 The demo booking information is stored in browser local storage so that it remains available when the classroom is opened in a new tab or refreshed.
 
 ## Footer and Portfolio
 
-The Elevora footer contains the product branding and assessment information.
+The Gurukula footer contains the product branding and assessment information.
 
 It includes:
 
-- Elevora branding
+- Gurukula branding
 - Personalized learning tagline
 - Assessment project information
 - Developer information
@@ -294,7 +294,7 @@ Request body:
 
 ## Project Structure
 
-    elevora-trial-booking/
+    Gurukula-trial-booking/
     │
     ├── client/
     │   ├── public/
@@ -336,8 +336,8 @@ Make sure the following are installed:
 
 ### 1. Clone the Repository
 
-    git clone https://github.com/Chethumalli/elevora-trial-booking.git
-    cd elevora-trial-booking
+    git clone https://github.com/Chethumalli/Gurukula-trial-booking.git
+    cd Gurukula-trial-booking
 
 ### 2. Install Frontend Dependencies
 
@@ -366,7 +366,7 @@ Create a MongoDB database using MongoDB Atlas or a local MongoDB instance.
 
 Example MongoDB connection string:
 
-    MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/elevora
+    MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/Gurukula
 
 Replace the username, password, cluster URL, and database name with your own values.
 
@@ -407,13 +407,13 @@ The application is deployed using Vercel, Render, and MongoDB Atlas.
 
 The React frontend is deployed on Vercel.
 
-    https://elevora-trial-booking.vercel.app
+    https://Gurukula-trial-booking.vercel.app
 
 ### Backend Deployment
 
 The Node.js and Express backend is deployed on Render.
 
-    https://elevora-api.onrender.com
+    https://Gurukula-api.onrender.com
 
 ### Database Deployment
 
@@ -423,7 +423,7 @@ MongoDB Atlas is used as the cloud database.
 
 The Vercel frontend uses:
 
-    VITE_API_URL=https://elevora-api.onrender.com
+    VITE_API_URL=https://Gurukula-api.onrender.com
 
 This allows the deployed frontend to communicate with the deployed backend.
 
@@ -895,7 +895,7 @@ The API calculates available trial slots according to the selected date and time
                                      |
                                      v
                           ┌─────────────────────┐
-                          │ Elevora Home Page   │
+                          │ Gurukula Home Page   │
                           └─────────────────────┘
 
 ## Demo Classroom Workflow
@@ -948,7 +948,7 @@ The application is designed around a simple parent-first booking experience.
 
 The intended customer journey is:
 
-1. Parent opens Elevora.
+1. Parent opens Gurukula.
 2. Parent selects their timezone.
 3. Parent chooses a suitable date.
 4. Parent views available trial slots.
@@ -960,16 +960,16 @@ The intended customer journey is:
 10. The parent receives a booking confirmation.
 11. The parent can try the demo class.
 12. The demo class opens in a separate browser tab.
-13. The parent can leave the demo and return to the Elevora home page.
+13. The parent can leave the demo and return to the Gurukula home page.
 14. The parent can use the View Portfolio button in the footer to visit the developer portfolio.
 
 ## Project Branding
 
-### Elevora
+### Gurukula
 
 Personalized learning. Real progress.
 
-© 2026 Elevora · Assessment project for CodeYoung
+© 2026 Gurukula · Assessment project for CodeYoung
 
 Developed by Chethan C. Malli
 
@@ -1018,6 +1018,6 @@ The project demonstrates:
 
 This project was developed for assessment and demonstration purposes.
 
-© 2026 Elevora · Assessment project for CodeYoung
+© 2026 Gurukula · Assessment project for CodeYoung
 
 Developed by **Chethan C. Malli**

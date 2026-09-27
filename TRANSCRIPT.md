@@ -1,10 +1,10 @@
 # TRANSCRIPT.md
 
-# Elevora — Development Transcript
+# Gurukula — Development Transcript
 
 ## Project
 
-**Project Name:** Elevora — Trial Class Booking Platform
+**Project Name:** Gurukula — Trial Class Booking Platform
 
 **Assessment:** CodeYoung Full-Stack Assessment
 
@@ -28,7 +28,7 @@ The application allows a parent to:
 6. Confirm a trial class.
 7. Receive a booking confirmation.
 8. Open a simulated demo class experience.
-9. Leave the demo class and return to the Elevora home page.
+9. Leave the demo class and return to the Gurukula home page.
 
 The backend is responsible for calculating mentor availability, validating booking requests, assigning an eligible mentor, and creating the booking.
 
@@ -73,7 +73,7 @@ The project was implemented using:
 
 The project was organized into separate frontend and backend applications.
 
-    elevora-trial-booking/
+    Gurukula-trial-booking/
 
     │
     ├── client/
@@ -137,7 +137,7 @@ The application was later extended with a separate demo classroom experience tha
 
 The application was branded as:
 
-## Elevora
+## Gurukula
 
 Tagline:
 
@@ -147,7 +147,7 @@ The branding was chosen to give the application a standalone product identity ra
 
 The footer identifies the project as:
 
-    © 2026 Elevora · Assessment project for CodeYoung
+    © 2026 Gurukula · Assessment project for CodeYoung
 
     Developed by Chethan C. Malli
 
@@ -663,7 +663,7 @@ The flow is:
 
           ↓
 
-    Elevora Home Page
+    Gurukula Home Page
 
 ---
 
@@ -737,7 +737,7 @@ When the user clicks the button:
 
           ↓
 
-    Elevora Home Page
+    Gurukula Home Page
 
 The button uses the application's root route so the user can return directly to the main booking experience.
 
@@ -751,7 +751,7 @@ The demo classroom retrieves its temporary booking information from browser loca
 
 This means the demo page can restore the booking information after a page refresh as long as the temporary booking data is still available in the browser.
 
-If no demo booking information is available, the application can show an appropriate unavailable state and provide navigation back to Elevora.
+If no demo booking information is available, the application can show an appropriate unavailable state and provide navigation back to Gurukula.
 
 ---
 
@@ -761,7 +761,7 @@ The footer was enhanced after the main application flow was completed.
 
 The footer contains:
 
-    Elevora Branding
+    Gurukula Branding
 
     Personalized Learning Tagline
 
@@ -787,7 +787,7 @@ A complete booking was successfully tested through the frontend.
 
 The tested flow was:
 
-    Open Elevora
+    Open Gurukula
 
           ↓
 
@@ -835,7 +835,7 @@ The tested flow was:
 
           ↓
 
-    Return to Elevora home page
+    Return to Gurukula home page
 
           ↓
 
@@ -877,7 +877,7 @@ Local development:
 
 Production:
 
-    VITE_API_URL=https://elevora-api.onrender.com
+    VITE_API_URL=https://Gurukula-api.onrender.com
 
 The application uses:
 
@@ -929,7 +929,7 @@ The frontend was deployed using Vercel.
 
 Live frontend:
 
-    https://elevora-trial-booking.vercel.app
+    https://Gurukula-trial-booking.vercel.app
 
 ### Backend Deployment
 
@@ -937,7 +937,7 @@ The backend was deployed using Render.
 
 Live backend:
 
-    https://elevora-api.onrender.com
+    https://Gurukula-api.onrender.com
 
 ### Database
 
@@ -947,7 +947,7 @@ MongoDB Atlas continues to provide the cloud database layer.
 
 The Vercel frontend was configured to communicate with the Render backend using:
 
-    VITE_API_URL=https://elevora-api.onrender.com
+    VITE_API_URL=https://Gurukula-api.onrender.com
 
 This allows the deployed frontend to make availability and booking requests to the deployed backend.
 
@@ -970,7 +970,7 @@ The verification included:
 - Testing the Try Demo Class button.
 - Confirming the demo opens in a new browser tab.
 - Testing the Leave Demo button.
-- Confirming Leave Demo returns to the Elevora home page.
+- Confirming Leave Demo returns to the Gurukula home page.
 - Confirming the View Portfolio button is available in the footer.
 
 The deployed architecture therefore supports the complete application flow from frontend interaction to backend processing and database persistence.
@@ -983,13 +983,13 @@ The final application is publicly deployed.
 
 Frontend:
 
-    https://elevora-trial-booking.vercel.app
+    https://Gurukula-trial-booking.vercel.app
 
 Backend:
 
-    https://elevora-api.onrender.com
+    https://Gurukula-api.onrender.com
 
-The deployed application demonstrates the complete Elevora trial booking experience.
+The deployed application demonstrates the complete Gurukula trial booking experience.
 
 ---
 
@@ -1148,7 +1148,7 @@ The completed application includes:
 
     ✓ Leave Demo navigation
 
-    ✓ Return to Elevora home page
+    ✓ Return to Gurukula home page
 
     ✓ Mentor directory
 
@@ -1210,7 +1210,7 @@ Possible production improvements include:
 
 The final customer journey is:
 
-    Parent Opens Elevora
+    Parent Opens Gurukula
 
              ↓
 
@@ -1266,7 +1266,7 @@ The final customer journey is:
 
              ↓
 
-    Elevora Home Page
+    Gurukula Home Page
 
              ↓
 
@@ -1278,7 +1278,7 @@ This provides a complete end-to-end customer experience from discovering a trial
 
 # 41. Final Result
 
-The final Elevora application provides a complete trial-class booking workflow with:
+The final Gurukula application provides a complete trial-class booking workflow with:
 
     Timezone-aware scheduling
 
@@ -1344,7 +1344,7 @@ The final Elevora application provides a complete trial-class booking workflow w
 
 The system was tested locally and then deployed to production.
 
-The final customer journey can be completed through the deployed Elevora application from frontend interaction through backend processing, database persistence, booking confirmation, demo classroom access, and returning to the home page.
+The final customer journey can be completed through the deployed Gurukula application from frontend interaction through backend processing, database persistence, booking confirmation, demo classroom access, and returning to the home page.
 
 ---
 
@@ -1356,22 +1356,22 @@ The completed application is publicly deployed using the following architecture:
       |
       v
     Vercel
-    Elevora React Frontend
+    Gurukula React Frontend
       |
       v
     Render
-    Elevora Express API
+    Gurukula Express API
       |
       v
     MongoDB Atlas
 
 Live Frontend:
 
-    https://elevora-trial-booking.vercel.app
+    https://Gurukula-trial-booking.vercel.app
 
 Live Backend:
 
-    https://elevora-api.onrender.com
+    https://Gurukula-api.onrender.com
 
 Portfolio:
 
@@ -1385,6 +1385,6 @@ The deployment demonstrates that the application is not limited to local develop
 
 **Chethan C. Malli**
 
-Elevora — Trial Class Booking Platform
+Gurukula — Trial Class Booking Platform
 
 Assessment project for CodeYoung

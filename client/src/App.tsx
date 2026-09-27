@@ -337,7 +337,7 @@ function DemoClassPage() {
 
   useEffect(() => {
     try {
-      const saved = window.localStorage.getItem("elevora-demo-booking");
+      const saved = window.localStorage.getItem("Gurukula-demo-booking");
       if (saved) {
         setBooking(JSON.parse(saved) as DemoBooking);
       }
@@ -355,13 +355,13 @@ function DemoClassPage() {
           </div>
           <h1 className="mt-6 text-3xl font-black">Demo class unavailable</h1>
           <p className="mt-3 text-sm leading-6 text-slate-400">
-            Please return to the Elevora booking page and open the demo class from your booking confirmation.
+            Please return to the Gurukula booking page and open the demo class from your booking confirmation.
           </p>
           <a
             href="/"
             className="mt-7 inline-flex items-center gap-2 rounded-2xl bg-white px-6 py-3.5 text-sm font-bold text-slate-950 transition hover:bg-slate-200"
           >
-            Back to Elevora
+            Back to Gurukula
             <Icon name="arrow" size={16} />
           </a>
         </div>
@@ -375,10 +375,10 @@ function DemoClassPage() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 text-sm font-black text-white">
-              E
+              G
             </div>
             <div>
-              <div className="text-lg font-bold tracking-tight">Elevora</div>
+              <div className="text-lg font-bold tracking-tight">Gurukula</div>
               <div className="text-[11px] font-medium text-slate-400">Demo Classroom</div>
             </div>
           </div>
@@ -393,7 +393,7 @@ function DemoClassPage() {
         <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-500">
-              Elevora Demo Classroom
+              Gurukula Demo Classroom
             </p>
             <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
               {started ? "Your trial class is ready" : "Welcome to your trial class"}
@@ -736,7 +736,7 @@ function BookingPage() {
       }
 
       const mentor = data.booking?.mentor;
-      const mentorName = mentor?.name || "Your Elevora Mentor";
+      const mentorName = mentor?.name || "Your Gurukula Mentor";
       const mentorTimezone = mentor?.timezone || timezone;
 
       const demoBooking: DemoBooking = {
@@ -752,7 +752,7 @@ function BookingPage() {
       };
 
       window.localStorage.setItem(
-        "elevora-demo-booking",
+        "Gurukula-demo-booking",
         JSON.stringify(demoBooking)
       );
 
@@ -826,12 +826,12 @@ function BookingPage() {
 
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 text-sm font-black text-white shadow-sm">
-              E
+              G
             </div>
 
             <div>
               <div className="text-lg font-bold tracking-tight">
-                Elevora
+                Gurukula
               </div>
 
               <div className="text-[11px] font-medium text-slate-400">
@@ -2392,7 +2392,7 @@ function BookingPage() {
             {/* Brand */}
             <div>
               <p className="text-lg font-bold text-white">
-                Elevora
+                Gurukula
               </p>
               <p className="mt-1 text-xs text-slate-400">
                 Personalized learning. Real progress.
@@ -2402,7 +2402,7 @@ function BookingPage() {
             {/* Copyright + Portfolio */}
             <div className="flex flex-col items-start gap-2 sm:items-end">
               <p className="text-xs text-slate-500">
-                © 2026 Elevora · Assessment project for CodeYoung
+                © 2026 Gurukula · Assessment project for CodeYoung
               </p>
 
               <p className="text-xs font-semibold text-slate-300">
