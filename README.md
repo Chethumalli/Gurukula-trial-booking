@@ -1,5 +1,3 @@
-# README.md
-
 # Elevora — Trial Class Booking Platform
 
 Elevora is a timezone-aware trial class booking platform built as a full-stack assessment project for CodeYoung.
